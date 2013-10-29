@@ -10,6 +10,5 @@ chatter.set_sockets(chat_room.sockets);
 chat_room.sockets.on('connection', function (socket) {
   chatter.connect_chatter({
     socket: socket,
-    username: socket.id
   });
 });
