@@ -3,8 +3,6 @@
 <script src="http://akshays-chatroom.herokuapp.com/socket.io/socket.io.js"></script>
 <script src="jquery-1.7.2.min.js"></script>
 <script type="text/javascript" charset="utf-8">
-var username = prompt("What is your name?");
-
 jQuery(document).ready(function () {
 	var log_chat_message = function  (message, type) {
 		var li = jQuery('<li />').text(message);
@@ -19,12 +17,18 @@ jQuery(document).ready(function () {
 	};
 
 	var socket = io.connect('http://akshays-chatroom.herokuapp.com');
-        
-        socket.emit('name', {name:username});
 
 	socket.on('entrance', function  (data) {
 		log_chat_message(data.message, 'system');
 	});
+
+        socket.on('waiting', function(data) {
+                log_chat_message(data.message, 'system');
+        });
+
+        socket.on('ready', function(data) {
+                log_chat_message(data.message, 'system');
+        });
 
 	socket.on('exit', function  (data) {
 		log_chat_message(data.message, 'leave');

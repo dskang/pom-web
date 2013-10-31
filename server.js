@@ -9,7 +9,5 @@ var chat_room = io.listen(app);
 chatter.set_sockets(chat_room.sockets);
 
 chat_room.sockets.on('connection', function (socket) {
-  chatter.connect_chatter({
-    socket: socket,
-  });
+  chatter.connect_chatter(socket);
 });
