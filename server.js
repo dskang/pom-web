@@ -1,6 +1,7 @@
 var io = require('socket.io'),
-  connect = require('connect'),
-  chatter = require('chatter');
+    connect = require('connect'),
+    chatter = require('./chatter.js');
+
 var port = process.env.PORT || 3000;
 
 var app = connect().use(connect.static('public')).listen(port);
