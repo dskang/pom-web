@@ -5,10 +5,10 @@ var io = require('socket.io'),
 var port = process.env.PORT || 3000;
 
 var app = connect().use(connect.static('public')).listen(port);
-var chat_room = io.listen(app);
+var chatRoom = io.listen(app);
 
-chatter.set_sockets(chat_room.sockets);
+chatter.setSockets(chatRoom.sockets);
 
-chat_room.sockets.on('connection', function (socket) {
-  chatter.connect_chatter(socket);
+chatRoom.sockets.on('connection', function (socket) {
+  chatter.connectChatter(socket);
 });
