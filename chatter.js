@@ -29,15 +29,15 @@ exports.connectChatter = function  (currentSocket) {
       message: 'Connected! Go ahead and start chatting.'
     };
     currentSocket.emit('ready', connectedMessage);
-    partner.socket.emit('ready', connectedMessage);
+    partner.emit('ready', connectedMessage);
 
     var disconnectedMessage = {
       message: theirName + ' has disconnected. Refresh the page to start another chat!'
     };
     currentSocket.on('disconnect', function() {
-     partner.socket.emit('exit', disconnectedMessage);
+     partner.emit('exit', disconnectedMessage);
     });
-    partner.socket.on('disconnect', function() {
+    partner.on('disconnect', function() {
      currentSocket.emit('exit', disconnectedMessage);
     });
 
@@ -45,16 +45,16 @@ exports.connectChatter = function  (currentSocket) {
       currentSocket.emit('chat', {
         message: myName + ': ' + data.message
       });
-      partner.socket.emit('chat', {
+      partner.emit('chat', {
         message: theirName + ': ' + data.message
       });
     });
 
-    partner.socket.on('chat', function(data) {
+    partner.on('chat', function(data) {
       currentSocket.emit('chat', {
         message: theirName + ': ' + data.message
       });
-      partner.socket.emit('chat', {
+      partner.emit('chat', {
         message: myName + ': ' + data.message
       });
     });
