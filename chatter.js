@@ -9,54 +9,70 @@ exports.setSockets = function  (sockets) {
 };
 
 exports.connectChatter = function  (currentSocket) {
-
   var partner;
-  var currentSocketWrapper = {socket: currentSocket, userdata: null};
 
-  currentSocket.emit('entrance', {message: 'Welcome to the chat room!'});
+  currentSocket.emit('entrance', {
+    message: 'Welcome to the chat room!'
+  });
+
   if (queue.length() <= threshold) {
-    queue.addItem(currentSocketWrapper);
-    currentSocket.emit('waiting', {message: 'Waiting for partner to join.'});
+    queue.addItem(currentSocket);
+    currentSocket.emit('waiting', {
+      message: 'Waiting for partner to join.'
+    });
     currentSocket.on('disconnect', function() {
-     queue.removeItem(currentSocketWrapper);
+     queue.removeItem(currentSocket);
    });
-  }
+  } else {
+    partner = queue.getItem();
+    var connectedMessage = {
+      message: 'Connected! Go ahead and start chatting.'
+    };
+    currentSocket.emit('ready', connectedMessage);
+    partner.socket.emit('ready', connectedMessage);
 
-  else {
-    partner =  queue.getItem(currentSocketWrapper, 0);
-    currentSocket.emit('ready', {message: 'Connected! Go ahead and start chatting.'});
-    partner.socket.emit('ready', {message: 'Connected! Go ahead and start chatting.'});
-
+    var disconnectedMessage = {
+      message: theirName + ' has disconnected. Refresh the page to start another chat!'
+    };
     currentSocket.on('disconnect', function() {
-     partner.socket.emit('exit', {message: theirName + ' has disconnected. Refresh the page to start another chat!'});
-   });
+     partner.socket.emit('exit', disconnectedMessage);
+    });
     partner.socket.on('disconnect', function() {
-     currentSocket.emit('exit', {message: theirName + ' has disconnected. Refresh the page to start another chat!'});
-   });
+     currentSocket.emit('exit', disconnectedMessage);
+    });
 
     currentSocket.on('chat', function(data) {
-     currentSocket.emit('chat', {message: myName + ': ' + data.message});
-     partner.socket.emit('chat', {message: theirName + ': ' + data.message});
-   });
-    partner.socket.on('chat', function(data) {
-     currentSocket.emit('chat', {message: theirName + ': ' + data.message});
-     partner.socket.emit('chat', {message: myName + ': ' + data.message});
-   });
+      currentSocket.emit('chat', {
+        message: myName + ': ' + data.message
+      });
+      partner.socket.emit('chat', {
+        message: theirName + ': ' + data.message
+      });
+    });
 
+    partner.socket.on('chat', function(data) {
+      currentSocket.emit('chat', {
+        message: theirName + ': ' + data.message
+      });
+      partner.socket.emit('chat', {
+        message: myName + ': ' + data.message
+      });
+    });
   }
 };
 
 exports.failure = function  (socket) {
-  socket.emit('error', {message: 'Please log in to the chatroom.'});
+  socket.emit('error', {
+    message: 'Please log in to the chatroom.'
+  });
 };
 
-function Queue ()
-{
+function Queue () {
   this.array = new Array();
   this.addItem = function(item) {
     this.array.push(item);
   }
-  this.getItem = function(currentSocket, matchingAlgorithm) {
+  this.getItem = function() {
     return this.array.shift();
   }
   this.removeItem = function(item) {
@@ -69,23 +85,3 @@ function Queue ()
    return this.array.length;
   }
 };
-
-/* TEST CODE FOR QUEUE
-var testQueue = new Queue();
-testQueue.addItem('a');
-testQueue.addItem('b');
-testQueue.addItem('c');
-testQueue.addItem('d');
-testQueue.addItem('e');
-testQueue.removeItem('d');
-console.log(testQueue.array);
-console.log('-------------');
-console.log(testQueue.length());
-console.log(testQueue.getItem());
-console.log(testQueue.length());
-console.log(testQueue.getItem());
-console.log(testQueue.length());
-console.log(testQueue.getItem());
-console.log(testQueue.length());
-console.log(testQueue.getItem());
-/**/
