@@ -1,24 +1,38 @@
 var io = require('socket.io'),
 express = require('express'),
+range_check = require('range_check'),
 chatter = require('./chatter.js');
 
 var port = process.env.PORT || 3000;
 var app = express();
 
-// FIXME change this to actual princeton IP addresses
-var regExpArray = new Array(/127.0.0.1/);
+var princetonIPs = [
+  "128.112.0.0/16",
+  "140.180.0.0/16",
+  "204.153.48.0/22",
+  "66.180.176.0/24",
+  "66.180.177.0/24",
+  "66.180.180.0/22"
+];
 
-app.get('/', function(req, res) {
-
-for (var i = 0; i < regExpArray.length; i++) {
-  if(regExpArray[i].test(req.ip)) {
-    res.sendfile(__dirname + '/public/index.html');
+function isValidIP(userIP) {
+  if (userIP == "127.0.0.1") {
+    return true;
   }
-  else {
-    res.send('Sorry, this site is only for Princeton students!');
+  for (var i = 0; i < princetonIPs.length; i++) {
+    if (range_check.in_range(userIP, princetonIPs[i])) {
+      return true;
+    }
   }
+  return false;
 }
 
+app.get('/', function(req, res) {
+  if (isValidIP(req.ip)) {
+    res.sendfile(__dirname + '/public/index.html');
+  } else {
+    res.send('Sorry, this site is only for Princeton students!');
+  }
 });
 
 app.use(express.static(__dirname + '/public'));
@@ -28,15 +42,7 @@ var chatRoom = io.listen(app.listen(port));
 chatter.setSockets(chatRoom.sockets);
 
 chatRoom.sockets.on('connection', function (socket) {
-  console.log(socket.handshake.address);
-  chatter.connectChatter(socket);
+  if (isValidIP(socket.handshake.address.address)) {
+    chatter.connectChatter(socket);
+  }
 });
-
-/*
-128.112.0.0/16
-140.180.0.0/16   (note 2)
-204.153.48.0/22
-66.180.176.0/24   (note 1)
-66.180.177.0/24
-66.180.180.0/22   (note 1)
-*/
