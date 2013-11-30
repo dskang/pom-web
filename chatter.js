@@ -4,11 +4,11 @@ var queue = new Queue();
 var myName = 'Me';
 var theirName = 'Anonymous Tiger';
 
-exports.setSockets = function  (sockets) {
+exports.setSockets = function (sockets) {
   allSockets = sockets;
 };
 
-exports.connectChatter = function  (currentSocket) {
+exports.connectChatter = function (currentSocket) {
   var partner;
 
   currentSocket.emit('entrance', {
@@ -21,8 +21,8 @@ exports.connectChatter = function  (currentSocket) {
       message: 'Waiting for partner to join.'
     });
     currentSocket.on('disconnect', function() {
-     queue.removeItem(currentSocket);
-   });
+      queue.removeItem(currentSocket);
+    });
   } else {
     partner = queue.getItem();
     var connectedMessage = {
@@ -35,10 +35,10 @@ exports.connectChatter = function  (currentSocket) {
       message: theirName + ' has disconnected. Refresh the page to start another chat!'
     };
     currentSocket.on('disconnect', function() {
-     partner.emit('exit', disconnectedMessage);
+      partner.emit('exit', disconnectedMessage);
     });
     partner.on('disconnect', function() {
-     currentSocket.emit('exit', disconnectedMessage);
+      currentSocket.emit('exit', disconnectedMessage);
     });
 
     currentSocket.on('chat', function(data) {
@@ -61,7 +61,7 @@ exports.connectChatter = function  (currentSocket) {
   }
 };
 
-exports.failure = function  (socket) {
+exports.failure = function (socket) {
   socket.emit('error', {
     message: 'Please log in to the chatroom.'
   });

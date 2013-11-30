@@ -28,5 +28,15 @@ var chatRoom = io.listen(app.listen(port));
 chatter.setSockets(chatRoom.sockets);
 
 chatRoom.sockets.on('connection', function (socket) {
+  console.log(socket.handshake.address);
   chatter.connectChatter(socket);
 });
+
+/*
+128.112.0.0/16
+140.180.0.0/16   (note 2)
+204.153.48.0/22
+66.180.176.0/24   (note 1)
+66.180.177.0/24
+66.180.180.0/22   (note 1)
+*/
