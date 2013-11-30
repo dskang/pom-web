@@ -9,65 +9,65 @@ exports.setSockets = function  (sockets) {
 };
 
 exports.connectChatter = function  (currentSocket) {
-    
-    var partner;
-    var currentSocketWrapper = {socket: currentSocket, userdata: null};
-    
-    currentSocket.emit('entrance', {message: 'Welcome to the chat room!'});
-    if (queue.length() <= threshold) {
-	queue.addItem(currentSocketWrapper);
-	currentSocket.emit('waiting', {message: 'Waiting for partner to join.'});
-	currentSocket.on('disconnect', function() {
-		queue.removeItem(currentSocketWrapper);
-	    });
-    }
-    
-    else {
-	partner =  queue.getItem(currentSocketWrapper, 0);
-	currentSocket.emit('ready', {message: 'Connected! Go ahead and start chatting.'});
-	partner.socket.emit('ready', {message: 'Connected! Go ahead and start chatting.'});
-	
-	currentSocket.on('disconnect', function() {
-		partner.socket.emit('exit', {message: theirName + ' has disconnected. Refresh the page to start another chat!'});
-	    });
-	partner.socket.on('disconnect', function() {
-		currentSocket.emit('exit', {message: theirName + ' has disconnected. Refresh the page to start another chat!'});
-	    });
 
-	currentSocket.on('chat', function(data) {
-		currentSocket.emit('chat', {message: myName + ': ' + data.message});
-		partner.socket.emit('chat', {message: theirName + ': ' + data.message});
-	    });
-	partner.socket.on('chat', function(data) {
-		currentSocket.emit('chat', {message: theirName + ': ' + data.message});
-		partner.socket.emit('chat', {message: myName + ': ' + data.message});
-	    });
+  var partner;
+  var currentSocketWrapper = {socket: currentSocket, userdata: null};
 
-    }
+  currentSocket.emit('entrance', {message: 'Welcome to the chat room!'});
+  if (queue.length() <= threshold) {
+    queue.addItem(currentSocketWrapper);
+    currentSocket.emit('waiting', {message: 'Waiting for partner to join.'});
+    currentSocket.on('disconnect', function() {
+     queue.removeItem(currentSocketWrapper);
+   });
+  }
+
+  else {
+    partner =  queue.getItem(currentSocketWrapper, 0);
+    currentSocket.emit('ready', {message: 'Connected! Go ahead and start chatting.'});
+    partner.socket.emit('ready', {message: 'Connected! Go ahead and start chatting.'});
+
+    currentSocket.on('disconnect', function() {
+     partner.socket.emit('exit', {message: theirName + ' has disconnected. Refresh the page to start another chat!'});
+   });
+    partner.socket.on('disconnect', function() {
+     currentSocket.emit('exit', {message: theirName + ' has disconnected. Refresh the page to start another chat!'});
+   });
+
+    currentSocket.on('chat', function(data) {
+     currentSocket.emit('chat', {message: myName + ': ' + data.message});
+     partner.socket.emit('chat', {message: theirName + ': ' + data.message});
+   });
+    partner.socket.on('chat', function(data) {
+     currentSocket.emit('chat', {message: theirName + ': ' + data.message});
+     partner.socket.emit('chat', {message: myName + ': ' + data.message});
+   });
+
+  }
 };
 
 exports.failure = function  (socket) {
-    socket.emit('error', {message: 'Please log in to the chatroom.'});
+  socket.emit('error', {message: 'Please log in to the chatroom.'});
 };
 
 function Queue ()
 {
-    this.array = new Array();
-    this.addItem = function(item) {
-	this.array.push(item);
+  this.array = new Array();
+  this.addItem = function(item) {
+    this.array.push(item);
+  }
+  this.getItem = function(currentSocket, matchingAlgorithm) {
+    return this.array.shift();
+  }
+  this.removeItem = function(item) {
+    var location = this.array.indexOf(item);
+    if (location !== -1) {
+      this.array.splice(location, 1);
     }
-    this.getItem = function(currentSocket, matchingAlgorithm) {
-	return this.array.shift();
-    }
-    this.removeItem = function(item) {
-	var location = this.array.indexOf(item);
-	if (location !== -1) {
-	    this.array.splice(location, 1);
-	}
-    }
-    this.length = function() {
-	return this.array.length;
-    }
+  }
+  this.length = function() {
+   return this.array.length;
+  }
 };
 
 /* TEST CODE FOR QUEUE

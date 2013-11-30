@@ -1,6 +1,6 @@
 var io = require('socket.io'),
-    connect = require('connect'),
-    chatter = require('./chatter.js');
+connect = require('connect'),
+chatter = require('./chatter.js');
 
 var port = process.env.PORT || 3000;
 
