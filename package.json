@@ -4,7 +4,8 @@
   "dependencies": {
     "socket.io": "*",
     "express": "*",
-    "range_check": "*"
+    "range_check": "*",
+    "mongoose": "*"
   },
   "author": "Origin Black"
 }

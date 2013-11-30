@@ -1,12 +1,8 @@
-var allSockets = null;
 var threshold = 0;
 var queue = new Queue();
 var myName = 'Me';
 var theirName = 'Anonymous Tiger';
-
-exports.setSockets = function (sockets) {
-  allSockets = sockets;
-};
+var conversation = require('./conversation.js');
 
 exports.connectChatter = function (currentSocket) {
   var partner;
@@ -14,7 +10,8 @@ exports.connectChatter = function (currentSocket) {
   currentSocket.emit('entrance', {
     message: 'Welcome to the chat room!'
   });
-
+  
+  // put socket into the queue
   if (queue.length() <= threshold) {
     queue.addItem(currentSocket);
     currentSocket.emit('waiting', {
@@ -25,6 +22,13 @@ exports.connectChatter = function (currentSocket) {
     });
   } else {
     partner = queue.getItem();
+
+    // log socket ID
+    // log partner ID
+    // log start time
+    // log end time
+
+
     var connectedMessage = {
       message: 'Connected! Go ahead and start chatting.'
     };
@@ -34,9 +38,11 @@ exports.connectChatter = function (currentSocket) {
     var disconnectedMessage = {
       message: theirName + ' has disconnected. Refresh the page to start another chat!'
     };
+
     currentSocket.on('disconnect', function() {
       partner.emit('exit', disconnectedMessage);
     });
+
     partner.on('disconnect', function() {
       currentSocket.emit('exit', disconnectedMessage);
     });

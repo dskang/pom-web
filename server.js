@@ -1,10 +1,14 @@
 var io = require('socket.io'),
 express = require('express'),
 princeton = require('./princeton'),
+mongoose = require('mongoose'),
 chatter = require('./chatter.js');
 
 var port = process.env.PORT || 3000;
 var app = express();
+
+// Connect to Mongoose database
+// mongoose.connect('mongodb://localhost/test');
 
 app.get('/', function(req, res) {
   if (princeton.isValidIP(req.ip)) {
@@ -17,8 +21,6 @@ app.get('/', function(req, res) {
 app.use(express.static(__dirname + '/public'));
 
 var chatRoom = io.listen(app.listen(port));
-
-chatter.setSockets(chatRoom.sockets);
 
 chatRoom.sockets.on('connection', function (socket) {
   if (princeton.isValidIP(socket.handshake.address.address)) {
