@@ -12,7 +12,8 @@ $(document).ready(function () {
   };
 
   // FIXME: localhost will not work in production
-  var socket = io.connect('http://localhost');
+  var socketPath = 'http://localhost';
+  var socket = io.connect(socketPath);
 
   socket.on('entrance', function (data) {
     log_chat_message(data.message, 'system');
@@ -32,10 +33,6 @@ $(document).ready(function () {
 
   socket.on('chat', function (data) {
     log_chat_message(data.message, 'normal');
-  });
-
-  socket.on('error', function (data) {
-    log_chat_message(data.message, 'error');
   });
 
   $('#chat_box').keypress(function (event) {

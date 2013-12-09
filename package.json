@@ -5,7 +5,8 @@
     "socket.io": "*",
     "express": "*",
     "range_check": "*",
-    "mongoose": "*"
+    "mongoose": "*",
+    "crypto": "*"
   },
   "author": "Origin Black"
 }
