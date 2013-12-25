@@ -5,8 +5,8 @@
     queue.push(user);
   }
 
-  exports.getUser = function(currentUser) {
-    return conversation.pickUser(currentUser, queue);
+  exports.getPartner = function(currentUser) {
+    return conversation.pickPartner(currentUser, queue);
   }
 
   exports.removeUser = function(user) {

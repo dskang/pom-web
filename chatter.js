@@ -7,7 +7,7 @@ var conversation = require('./conversation.js');
 exports.connectChatter = function (currentSocket, userID) {
 
   var thatUser;
-  var thisUser = {socket: currentSocket, ownID: userID, partnerID: null, startTime: null, matchingHeuristic: null, clicked: false};
+  var thisUser = {socket: currentSocket, ownID: userID, partnerID: null, startTime: null, matchingHeuristic: null, ownClick: false, partnerClick: false};
 
   thisUser.socket.emit('entrance', {
     message: 'Welcome to the chat room!'
@@ -26,7 +26,7 @@ exports.connectChatter = function (currentSocket, userID) {
 
     // match the socket with another from the queue
   } else {
-    thatUser = queue.getUser(thisUser);
+    thatUser = queue.getPartner(thisUser);
 
     // populate thatUserID field of both thisUser and thatUser
     thatUser.partnerID = thisUser.ownID;

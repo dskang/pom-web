@@ -7,7 +7,8 @@ var conversationSchema = new Schema({
   matchingHeuristic: String, 
   chatLength: Number, 
   startTime: Date, 
-  clicked: Boolean
+  user1Clicked: Boolean, 
+  user2Clicked: Boolean
 });
 
 var Conversation = mongoose.model('Conversation', conversationSchema);
@@ -29,14 +30,15 @@ var Conversation = mongoose.model('Conversation', conversationSchema);
           matchingHeuristic: user.matchingHeuristic, 
           chatLength: Date.now() - user.startTime, 
           startTime: user.startTime, 
-          clicked: user.clicked
+          user1Clicked: user.ownClick,
+          user2Clicked: user.partnerClick
         }).save();
       }
     }
   });
  }
 
-exports.pickUser = function (user, queue) {
+exports.pickPartner = function (user, queue) {
 
   // pick matching heuristic
     // use UCB algorithm to pick the correct heuristic
