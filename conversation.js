@@ -4,7 +4,7 @@ var mongoose = require('mongoose')
 var conversationSchema = new Schema({
   userID1: String, 
   userID2: String, 
-  matchingHeuristic: Number, 
+  matchingHeuristic: String, 
   chatLength: Number, 
   startTime: Date, 
   clicked: Boolean
@@ -34,8 +34,28 @@ var Conversation = mongoose.model('Conversation', conversationSchema);
       }
     }
   });
-
  }
+
+exports.pickUser = function (user, queue) {
+
+  // pick matching heuristic
+    // use UCB algorithm to pick the correct heuristic
+      // for each matching heuristic, 
+      // calculate average success rate
+  // end up with the chosenHeuristic
+  var chosenHeuristic = "FIFO";
+
+  // Implement chosenHeuristic matching algorithm
+  var partner = queue.shift();
+  
+  // Update user and partner with the chosenHeuristic tag
+  user.matchingHeuristic = chosenHeuristic;
+  partner.matchingHeuristic = chosenHeuristic; 
+
+  // Return the chosen partner
+  return partner;
+
+}
 
 // Debugging function to print all conversations in the database
 exports.displayAll = function() {
