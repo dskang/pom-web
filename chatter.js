@@ -15,6 +15,7 @@ exports.connectChatter = function (currentSocket, userID) {
   
   // put socket into the queue
   // FIXME: include a check so that someone won't end up chatting with themselves
+  // FIXME: include a check that there isn't a way to DOS POM by having multiple windows open
   if (queue.length() <= threshold) {
     queue.addUser(thisUser);
     thisUser.socket.emit('waiting', {
@@ -31,6 +32,8 @@ exports.connectChatter = function (currentSocket, userID) {
     // populate thatUserID field of both thisUser and thatUser
     thatUser.partnerID = thisUser.ownID;
     thisUser.partnerID = thatUser.ownID;
+
+    // populate startTime field of both users
     thatUser.startTime = Date.now();
     thisUser.startTime = Date.now();
 

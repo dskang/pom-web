@@ -3,7 +3,8 @@ express = require('express'),
 princeton = require('./princeton'),
 mongoose = require('mongoose'),
 chatter = require('./chatter.js'),
-crypto = require('crypto');
+crypto = require('crypto'), 
+wait = require('wait.for');
 
 var port = process.env.PORT || 3000;
 var app = express();
@@ -48,6 +49,9 @@ var chatRoom = io.listen(app.listen(port));
 // If the user is from Princeton, connect their socket to the chatroom
 chatRoom.sockets.on('connection', function (socket) {
   if (princeton.isValidIP(socket.handshake.address.address)) {
-    chatter.connectChatter(socket, userID);
+
+    // launch handler in wait.for Fiber
+    wait.launchFiber(chatter.connectChatter, socket, userID);
+
   }
 });

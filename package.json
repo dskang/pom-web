@@ -6,7 +6,8 @@
     "express": "*",
     "range_check": "*",
     "mongoose": "*",
-    "crypto": "*"
+    "crypto": "*",
+    "wait.for": "*"
   },
   "author": "Origin Black"
 }
