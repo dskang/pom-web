@@ -19,15 +19,11 @@ app.get('/', function(req, res) {
 
   // Check IP address to remove non-Princeton users
   if (princeton.isValidIP(req.ip)) {
-
     // If it's a returning user, read their userID
-    if ((typeof req.cookies.chatterID) !== 'undefined') 
-    {
+    if ((typeof req.cookies.chatterID) !== 'undefined') {
       userID = req.cookies.chatterID;
-    }
-
-    // Otherwise, they're a new user, so assign them a random ID
-    else {
+    } else {
+      // Otherwise, they're a new user, so assign them a random ID
       crypto.pseudoRandomBytes(16, function(err, buff) {
        res.cookie('chatterID', buff.toString('hex'), {maxAge: 60*60*24*356*1000});
        userID = req.cookies.chatterID;
@@ -36,8 +32,7 @@ app.get('/', function(req, res) {
 
     // Send the main chatroom page
     res.sendfile(__dirname + '/public/index.html');
-  }
-  else {
+  } else {
     // FIXME : serve a denial page to non-Princeton users
     res.send('Sorry, this site is only for Princeton students!');
   }

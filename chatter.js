@@ -7,12 +7,20 @@ var conversation = require('./conversation.js');
 exports.connectChatter = function (currentSocket, userID) {
 
   var thatUser;
-  var thisUser = {socket: currentSocket, ownID: userID, partnerID: null, startTime: null, matchingHeuristic: null, ownClick: false, partnerClick: false};
+  var thisUser = {
+    socket: currentSocket,
+    ownID: userID,
+    partnerID: null,
+    startTime: null,
+    matchingHeuristic: null,
+    ownClick: false,
+    partnerClick: false
+  };
 
   thisUser.socket.emit('entrance', {
     message: 'Welcome to the chat room!'
   });
-  
+
   // put socket into the queue
   // FIXME: include a check so that someone won't end up chatting with themselves
   // FIXME: include a check that there isn't a way to DOS POM by having multiple windows open
@@ -42,7 +50,7 @@ exports.connectChatter = function (currentSocket, userID) {
     var connectedMessage = {
       message: 'Connected! Go ahead and start chatting.'
     };
-    
+
     thisUser.socket.emit('ready', connectedMessage);
     thatUser.socket.emit('ready', connectedMessage);
 

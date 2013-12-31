@@ -38,8 +38,9 @@ var Conversation = mongoose.model('Conversation', conversationSchema);
    .or([{userID1: user.ownID, userID2: user.partnerID, startTime: user.startTime},
     {userID1: user.partnerID, userID2: user.ownID, startTime: user.startTime}])
    .exec(function(err, convo) {
-    if(err) console.log("Error reading from the database!");
-    else { 
+    if (err) {
+      console.log("Error reading from the database!");
+    } else {
       if (convo.length == 0) {
         new Conversation({
           userID1: user.ownID, 
@@ -61,8 +62,7 @@ var Conversation = mongoose.model('Conversation', conversationSchema);
  exports.pickPartner = function (user, queue) {
 
   // pick matching heuristic
-    // use UCB algorithm to pick the correct heuristic
-  
+  // use UCB algorithm to pick the correct heuristic
   // for each matching heuristic, calculate UCB value and 
   // find the maximum value
 
@@ -74,9 +74,8 @@ var Conversation = mongoose.model('Conversation', conversationSchema);
 
   for (var i = 0; i < heuristicList.length; i++) {
     var currentValue = findHeuristicAndExecute(heuristicList[i], UCBMatchProb);
-    
   }
-      // calculate average success rate
+  // calculate average success rate
   // end up with the chosenHeuristic
   // FIXME
 
@@ -123,7 +122,7 @@ var Conversation = mongoose.model('Conversation', conversationSchema);
 
   // Update field of both user and partner with the matching heuristic
   user.matchingHeuristic = chosenHeuristic;
-  partner.matchingHeuristic = chosenHeuristic;  
+  partner.matchingHeuristic = chosenHeuristic;
   return partner;
 
 }
@@ -301,7 +300,10 @@ var UCBMatchProb = function(convoArray) {
 // This function prints all the conversations in the database.
 exports.displayAll = function() {
   Conversation.find(function(err, convo) {
-    if(err) console.log("Error printing the conversation!");
-    else console.log(convo);
+    if (err) {
+      console.log("Error printing the conversation!");
+    } else {
+      console.log(convo);
+    }
   })
 }
