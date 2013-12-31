@@ -17,6 +17,7 @@ exports.connectChatter = function (currentSocket, userID) {
     partnerClick: false,
     messagesSent: 0, 
     messagesReceived: 0
+
   };
 
   thisUser.socket.emit('entrance', {
