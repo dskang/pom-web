@@ -1,29 +1,33 @@
 <!DOCTYPE html>
 <html ng-app="pom">
   <head>
-    <link href="style.css" rel="stylesheet" type="text/css" media="all">
     <title>Princeton Omegle</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css">
+    <link href="style.css" rel="stylesheet" type="text/css" media="all">
   </head>
   <body>
-    <div ng-controller="MainCtrl">
+    <div ng-controller="MainCtrl" class="container">
       <div ng-switch="mode">
         <div ng-switch-when="chatting">
           <div ng-controller="ChatCtrl">
             <div id="chatroom">
-              <ul id="chat_log">
+              <ul class="list-unstyled">
                 <li ng-repeat="message in messages" ng-class="message.type">
                 {{message.text}}
                 </li>
               </ul>
             </div>
             <form ng-submit="sendMessage()">
-              <input ng-model="message" id="chat_box" />
+              <input ng-model="message" type="text" class="form-control">
             </form>
           </div>
         </div>
         <div ng-switch-default>
-          <h1>There are amazing people at Princeton you've never met.</h1>
-          <button ng-click="startChatting()">Start chatting!</button>
+          <h1 class="text-center">There are amazing people at Princeton you've never met.</h1>
+          <div class="text-center">
+            <button ng-click="startChatting()" type="button" class="btn btn-primary btn-lg">Start chatting!</button>
+          </div>
         </div>
       </div>
     </div>
