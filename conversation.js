@@ -62,24 +62,46 @@ var Conversation = mongoose.model('Conversation', conversationSchema);
  exports.pickPartner = function (user, queue) {
 
   // pick matching heuristic
+<<<<<<< HEAD
   // use UCB algorithm to pick the correct heuristic
   // for each matching heuristic, calculate UCB value and 
   // find the maximum value
 
   // FIXME: PLAY EACH ARM ONCE TO INITIALIZE
 
+=======
+>>>>>>> fixed UCB1 algorithm bug that was returning NaN
   var currentValue = null;
   var currentMax = 0;
   var currentBestHeuristic = null;
 
+  // for each matching heuristic, calculate UCB value and 
+  // find the maximum value and choose it as the heuristic
   for (var i = 0; i < heuristicList.length; i++) {
+<<<<<<< HEAD
     var currentValue = findHeuristicAndExecute(heuristicList[i], UCBMatchProb);
   }
   // calculate average success rate
-  // end up with the chosenHeuristic
-  // FIXME
+=======
+    var currentValue = findHeuristicAndExecute(heuristicList[i], UCB1);
+    if (currentValue > currentMax) {
+      currentBestHeuristic = heuristicList[i];
+      currentMax = currentValue;
+    }
 
-  var chosenHeuristic = "FIFO";
+    // FOR DEBUGGING
+     console.log(heuristicList[i] + " = " + currentValue);
+  }
+
+  console.log("****************************************");
+  console.log("The CHOSEN HEURISTIC is : " + currentBestHeuristic);
+  console.log("****************************************");
+
+>>>>>>> fixed UCB1 algorithm bug that was returning NaN
+  // end up with the chosenHeuristic
+  var chosenHeuristic = currentBestHeuristic;
+
+  // var chosenHeuristic = "FIFO";
   var partner = null;
 
   // implement the matching heuristic chosen 
@@ -120,6 +142,10 @@ var Conversation = mongoose.model('Conversation', conversationSchema);
     break;
   }
 
+  // FOR DEBUGGING
+  console.log("The partner is: \n");
+  console.log(partner);
+
   // Update field of both user and partner with the matching heuristic
   user.matchingHeuristic = chosenHeuristic;
   partner.matchingHeuristic = chosenHeuristic;
@@ -146,7 +172,9 @@ var LIFO = function(user, queue) {
 // This function returns a random element of the queue
 var Random = function(user, queue) {
   var randomIndex = Math.floor(Math.random()*queue.length);
-  return queue.splice(randomIndex, 1);
+  var randomUser = queue[randomIndex];
+  queue.splice(randomIndex, 1); // remove randomUser from queue
+  return randomUser;
 }
 
 // This function finds the potential partner in queue that 
@@ -208,7 +236,7 @@ var findUserAndExecute = function(user, functionToApply) {
    return functionToApply(user, data);
  }
  catch(err) {
-  console.log("Error reading from the database!");
+  console.log("Error finding user " + user + " in the database!");
 }
 }
 
@@ -220,10 +248,11 @@ var findHeuristicAndExecute = function(heuristic, functionToApply) {
   var query = {matchingHeuristic: heuristic};
   try {
     var data = wait.forMethod(Conversation, "find", query);
+    console.log(data);
     return functionToApply(data);
   }
   catch(err) {
-    console.log("Error reading from the database!");
+    console.log("Error finding the heuristic " + heuristic + " in the database!");
   }
 }
 
@@ -280,16 +309,32 @@ var averageClickProb = function(user, convoArray) {
 
 }
 
-var UCBMatchProb = function(convoArray) {
+var UCB1 = function(convoArray) {
 
-  var sum = 0.0; 
-  var length = convoArray.length;
-  for (var i = 0; i < length; i++) {
-    if (convoArray[i].user1Clicked && convoArray[i].user2Clicked) sum++;
+  var thisHeuristicsSuccesses = 0.0;
+
+  // total number of times this 
+  var thisHeuristicsPlays = convoArray.length;
+  for (var i = 0; i < thisHeuristicsPlays; i++) {
+    if (convoArray[i].user1Clicked && convoArray[i].user2Clicked) thisHeuristicsSuccesses++;
   }
 
-  if (length > 0) return ((sum/length) + Math.sqrt(2*Math.log(sum)/length));
-  else return 0;
+  var allConversations = wait.forMethod(Conversation, "find");
+  var allPlays = allConversations.length;
+
+  /* FOR DEBUGGING
+  console.log("thisHeuristicsSuccesses = " + thisHeuristicsSuccesses);
+  console.log("thisHeuristicsPlays = " + thisHeuristicsPlays);
+  console.log("thisHeuristicsSuccesses/thisHeuristicsPlays = " + (thisHeuristicsSuccesses/thisHeuristicsPlays));
+  console.log("allPlays = " + allPlays);
+  console.log("Math.sqrt(2*Math.log(allPlays)/thisHeuristicsPlays) = " + Math.sqrt(2*Math.log(allPlays)/thisHeuristicsPlays));
+  */ 
+
+  var probabilityEstimate = thisHeuristicsSuccesses/thisHeuristicsPlays;
+  var UCBoundEstimate = Math.sqrt(2*Math.log(allPlays)/thisHeuristicsPlays);
+  if (thisHeuristicsPlays > 0) return (probabilityEstimate + UCBoundEstimate);
+  // by making the first return value POSITIVE_INFINITY, we ensure that each arm is played once first
+  else return Number.POSITIVE_INFINITY;
 
 }
 
