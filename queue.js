@@ -1,6 +1,8 @@
 var queue = new Array();
 var conversation = require('./conversation.js');
 
+//FIXME: style this better
+
 exports.addUser = function(user) {
   queue.push(user);
 }
