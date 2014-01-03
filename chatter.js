@@ -17,7 +17,6 @@ exports.connectChatter = function (currentSocket, userID) {
     partnerClick: false,
     messagesSent: 0, 
     messagesReceived: 0
-
   };
 
   thisUser.socket.emit('entrance', {
@@ -98,10 +97,12 @@ exports.connectChatter = function (currentSocket, userID) {
 
     thisUser.socket.on('reveal-button', function(data) {
       thisUser.buttonDisplayed = true;
+      thatUser.buttonDisplayed = true;
     });
 
     thatUser.socket.on('reveal-button', function(data) {
       thatUser.buttonDisplayed = true;
+      thisUser.buttonDisplayed = true;
     })
   }
 };
