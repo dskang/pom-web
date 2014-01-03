@@ -7,15 +7,16 @@ var conversation = require('./conversation.js');
 exports.connectChatter = function (currentSocket, userID) {
 
   var thatUser;
-  var thisUser = {
-    socket: currentSocket,
-    ownID: userID,
-    partnerID: null,
-    startTime: null,
-    matchingHeuristic: null,
-    ownClick: false,
-    partnerClick: false
-  };
+  var thisUser = {socket: currentSocket, 
+    ownID: userID, 
+    partnerID: null, 
+    startTime: null, 
+    matchingHeuristic: null, 
+    buttonDisplayed: false,
+    ownClick: false, 
+    partnerClick: false,
+    ownMessageCount: 0, 
+    partnerMessageCount: 0};
 
   thisUser.socket.emit('entrance', {
     message: 'Welcome to the chat room!'
@@ -45,8 +46,6 @@ exports.connectChatter = function (currentSocket, userID) {
     thatUser.startTime = Date.now();
     thisUser.startTime = Date.now();
 
-    // FIXME: Implement matching heuristic
-
     var connectedMessage = {
       message: 'Connected! Go ahead and start chatting.'
     };
@@ -69,6 +68,10 @@ exports.connectChatter = function (currentSocket, userID) {
     });
 
     thisUser.socket.on('chat', function(data) {
+
+      thisUser.ownMessageCount++;
+      thatUser.partnerMessageCount++;
+
       thisUser.socket.emit('chat', {
         message: myName + ': ' + data.message
       });
@@ -78,6 +81,10 @@ exports.connectChatter = function (currentSocket, userID) {
     });
 
     thatUser.socket.on('chat', function(data) {
+
+      thatUser.ownMessageCount++;
+      thisUser.partnerMessageCount++;
+
       thisUser.socket.emit('chat', {
         message: theirName + ': ' + data.message
       });
@@ -85,5 +92,13 @@ exports.connectChatter = function (currentSocket, userID) {
         message: myName + ': ' + data.message
       });
     });
+
+    thisUser.socket.on('reveal-fb-button', function(data) {
+      thisUser.buttonDisplayed = true;
+    });
+
+    thatUser.socket.on('reveal-fb-button', function(data) {
+      thatUser.buttonDisplayed = true;
+    })
   }
 };
