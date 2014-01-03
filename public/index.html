@@ -1,18 +1,35 @@
-<html>
+<!DOCTYPE html>
+<html ng-app="pom">
   <head>
-    <script src="/socket.io/socket.io.js"></script>
-    <script src="jquery-1.7.2.min.js"></script>
-    <script src="script.js"></script>
     <link href="style.css" rel="stylesheet" type="text/css" media="all">
+    <title>Princeton Omegle</title>
   </head>
   <body>
-
-    <div id="chatroom">
-      <ul id="chat_log">
-      </ul>
+    <div ng-controller="MainCtrl">
+      <div ng-switch="mode">
+        <div ng-switch-when="chatting">
+          <div ng-controller="ChatCtrl">
+            <div id="chatroom">
+              <ul id="chat_log">
+                <li ng-repeat="message in messages" ng-class="message.type">
+                {{message.text}}
+                </li>
+              </ul>
+            </div>
+            <form ng-submit="sendMessage()">
+              <input ng-model="message" id="chat_box" />
+            </form>
+          </div>
+        </div>
+        <div ng-switch-default>
+          <h1>There are amazing people at Princeton you've never met.</h1>
+          <button ng-click="startChatting()">Start chatting!</button>
+        </div>
+      </div>
     </div>
-
-    <input type="text" name="chat_box" value="" id="chat_box" placeholder="type to chat..." />
-
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.6/angular.min.js"></script>
+    <script src="app.js"></script>
+    <script src="services.js"></script>
   </body>
 </html>

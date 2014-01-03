@@ -17,3 +17,12 @@ ul#chat_log {
 input#chat_box {
   width: 99%;
 }
+
+li.system {
+  font-weight: bold;
+}
+
+li.leave {
+  font-weight: bold;
+  color: #F00;
+}
