@@ -9,7 +9,7 @@
   <body>
     <div ng-controller="MainCtrl" class="container">
       <div ng-switch="mode">
-        <div ng-switch-when="chatting">
+        <div ng-switch-when="chatting" ng-cloak>
           <div ng-controller="ChatCtrl">
             <div id="chatroom">
               <ul class="list-unstyled">
