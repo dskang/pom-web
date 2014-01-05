@@ -6,8 +6,8 @@
     <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css">
     <link href="css/style.css" rel="stylesheet" type="text/css" media="all">
   </head>
-  <body>
-    <div ng-controller="MainCtrl" class="container">
+  <body ng-controller="MainCtrl" ng-class="{cover: !isChatting}">
+    <div class="container">
       <div ng-switch="mode">
         <div ng-switch-when="chatting" ng-cloak>
           <div ng-controller="ChatCtrl">

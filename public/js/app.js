@@ -3,6 +3,7 @@ var app = angular.module('pom', []);
 app.controller('MainCtrl', function($scope) {
   $scope.startChatting = function() {
     $scope.mode = 'chatting';
+    $scope.isChatting = true;
   };
 });
 

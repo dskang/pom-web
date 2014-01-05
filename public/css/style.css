@@ -3,6 +3,15 @@
   display: none !important;
 }
 
+/* Background cover */
+.cover {
+  background: url(/img/bg.jpg) no-repeat center center fixed;
+  -webkit-background-size: cover;
+  -moz-background-size: cover;
+  -o-background-size: cover;
+  background-size: cover;
+}
+
 div#chatroom {
   display: block;
   height: 300px;
