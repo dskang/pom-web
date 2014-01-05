@@ -12,8 +12,13 @@
   background-size: cover;
 }
 
+@media (min-width: 768px) {
+  .centered {
+    margin-top: 30%;
+  }
+}
+
 .centered {
-  margin-top: 30%;
   text-align: center;
 }
 
