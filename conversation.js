@@ -81,20 +81,8 @@ var Conversation = mongoose.model('Conversation', conversationSchema);
       currentBestHeuristic = heuristicList[i];
       currentMax = currentValue;
     }
-<<<<<<< HEAD
   }
 
-=======
-
-    // FOR DEBUGGING
-     console.log(heuristicList[i] + " = " + currentValue);
-  }
-
-  console.log("****************************************");
-  console.log("The CHOSEN HEURISTIC is : " + currentBestHeuristic);
-  console.log("****************************************");
-
->>>>>>> fixed UCB1 algorithm bug that was returning NaN
   // end up with the chosenHeuristic
   var chosenHeuristic = currentBestHeuristic;
 
@@ -150,10 +138,6 @@ var Conversation = mongoose.model('Conversation', conversationSchema);
     partner = findPartnerWithMinDistance(user, queue, averageMessagesReceived);
     break;
   }
-
-  // FOR DEBUGGING
-  console.log("The partner is: \n");
-  console.log(partner);
 
   // Update field of both user and partner with the matching heuristic
   user.matchingHeuristic = chosenHeuristic;
@@ -240,18 +224,8 @@ var findPartnerWithMaxDistance = function(user, queue, normFunction) {
 // the result
 var findUserAndExecute = function(user, functionToApply) {
  var query = {$or: [{userID1: user.ownID}, {userID2: user.ownID}]};
-<<<<<<< HEAD
  var data = wait.forMethod(Conversation, "find", query);
  return functionToApply(user, data);
-=======
- try {
-   var data = wait.forMethod(Conversation, "find", query);
-   return functionToApply(user, data);
- }
- catch(err) {
-  console.log("Error finding user " + user + " in the database!");
-}
->>>>>>> fixed UCB1 algorithm bug that was returning NaN
 }
 
 // helper function to execute a function over the array 
@@ -260,19 +234,8 @@ var findUserAndExecute = function(user, functionToApply) {
 // FIXME: functionToApply signature add
 var findHeuristicAndExecute = function(heuristic, functionToApply) {
   var query = {matchingHeuristic: heuristic};
-<<<<<<< HEAD
   var data = wait.forMethod(Conversation, "find", query);
   return functionToApply(data);
-=======
-  try {
-    var data = wait.forMethod(Conversation, "find", query);
-    console.log(data);
-    return functionToApply(data);
-  }
-  catch(err) {
-    console.log("Error finding the heuristic " + heuristic + " in the database!");
-  }
->>>>>>> fixed UCB1 algorithm bug that was returning NaN
 }
 
 /******************************************************************************
@@ -325,6 +288,30 @@ var averageClickProb = function(user, convoArray) {
   if (length > 0) return sum/length;
   else return 0;
 
+}
+
+var averageMessagesSent = function(user, convoArray) {
+  
+  var sum = 0.0;
+  var length = convoArray.length;
+  for (var i = 0; i < length; i++) {
+    if (user.ownID === convoArray[i].userID1) sum = sum + convoArray[i].user1MessagesSent;
+    else if (user.ownID === convoArray[i].userID2) sum = sum + convoArray[i].user2MessagesSent;
+  }
+  if (length > 0) return sum/length;
+  else return 0;
+}
+
+var averageMessagesReceived = function(user, convoArray) {
+
+  var sum = 0.0;
+  var length = convoArray.length;
+  for (var i = 0; i < length; i++) {
+    if (user.ownID === convoArray[i].userID1) sum = sum + convoArray[i].user2MessagesSent;
+    else if (user.ownID === convoArray[i].userID2) sum = sum + convoArray[i].user1MessagesSent;
+  }
+  if (length > 0) return sum/length;
+  else return 0;
 }
 
 var averageMessagesSent = function(user, convoArray) {
