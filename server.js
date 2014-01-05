@@ -12,7 +12,7 @@ app.use(express.cookieParser());
 
 var userID = null;
 
-// Connect to Mongoose database
+// FIXME: Connect to Mongoose database
 mongoose.connect('mongodb://localhost/test');
 
 app.get('/', function(req, res) {

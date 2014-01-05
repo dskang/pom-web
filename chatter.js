@@ -15,8 +15,9 @@ exports.connectChatter = function (currentSocket, userID) {
     buttonDisplayed: false,
     ownClick: false, 
     partnerClick: false,
-    ownMessageCount: 0, 
-    partnerMessageCount: 0};
+    messagesSent: 0, 
+    messagesReceived: 0
+  };
 
   thisUser.socket.emit('entrance', {
     message: 'Welcome to the chat room!'
@@ -60,6 +61,7 @@ exports.connectChatter = function (currentSocket, userID) {
     thisUser.socket.on('disconnect', function() {
       thatUser.socket.emit('exit', disconnectedMessage);
       conversation.save(thatUser);
+
     });
 
     thatUser.socket.on('disconnect', function() {
@@ -69,8 +71,8 @@ exports.connectChatter = function (currentSocket, userID) {
 
     thisUser.socket.on('chat', function(data) {
 
-      thisUser.ownMessageCount++;
-      thatUser.partnerMessageCount++;
+      thisUser.messagesSent++;
+      thatUser.messagesReceived++;
 
       thisUser.socket.emit('chat', {
         message: myName + ': ' + data.message
@@ -82,8 +84,8 @@ exports.connectChatter = function (currentSocket, userID) {
 
     thatUser.socket.on('chat', function(data) {
 
-      thatUser.ownMessageCount++;
-      thisUser.partnerMessageCount++;
+      thatUser.messagesSent++;
+      thisUser.messagesReceived++;
 
       thisUser.socket.emit('chat', {
         message: theirName + ': ' + data.message
@@ -93,11 +95,11 @@ exports.connectChatter = function (currentSocket, userID) {
       });
     });
 
-    thisUser.socket.on('reveal-fb-button', function(data) {
+    thisUser.socket.on('reveal-button', function(data) {
       thisUser.buttonDisplayed = true;
     });
 
-    thatUser.socket.on('reveal-fb-button', function(data) {
+    thatUser.socket.on('reveal-button', function(data) {
       thatUser.buttonDisplayed = true;
     })
   }

@@ -4,7 +4,8 @@ var wait = require('wait.for');
 
 var heuristicList = ["FIFO", "LIFO", "Random", "ChatLengthHiLo", 
 "ChatLengthHiHi", "LastVisitHiLo", "LastVisitHiHi", "ClickProbHiLo", 
-"ClickProbHiHi", "MatchProbHiLo", "MatchProbHiHi"];
+"ClickProbHiHi", "MatchProbHiLo", "MatchProbHiHi", "MessagesSentHiLo", 
+"MessagesSentHiHi", "MessagesReceivedHiLo", "MessagesReceivedHiHi"];
 
 /******************************************************************************
 * Initialize mongoDB database schema and model
@@ -18,7 +19,10 @@ var conversationSchema = new Schema({
   chatLength: Number, 
   startTime: Date, 
   user1Clicked: Boolean, 
-  user2Clicked: Boolean
+  user2Clicked: Boolean,
+  buttonDisplayed: Boolean, 
+  user1MessagesSent: Number,
+  user2MessagesSent: Number
 });
 
 // Compile schema into mongoDB model object, which can be used to manipulate 
@@ -49,7 +53,10 @@ var Conversation = mongoose.model('Conversation', conversationSchema);
           chatLength: Date.now() - user.startTime, 
           startTime: user.startTime, 
           user1Clicked: user.ownClick,
-          user2Clicked: user.partnerClick
+          user2Clicked: user.partnerClick, 
+          buttonDisplayed: user.buttonDisplayed, 
+          user1MessagesSent: user.messagesSent,
+          user2MessagesSent: user.messagesReceived
         }).save();
       }
     }
@@ -62,15 +69,6 @@ var Conversation = mongoose.model('Conversation', conversationSchema);
  exports.pickPartner = function (user, queue) {
 
   // pick matching heuristic
-<<<<<<< HEAD
-  // use UCB algorithm to pick the correct heuristic
-  // for each matching heuristic, calculate UCB value and 
-  // find the maximum value
-
-  // FIXME: PLAY EACH ARM ONCE TO INITIALIZE
-
-=======
->>>>>>> fixed UCB1 algorithm bug that was returning NaN
   var currentValue = null;
   var currentMax = 0;
   var currentBestHeuristic = null;
@@ -78,26 +76,13 @@ var Conversation = mongoose.model('Conversation', conversationSchema);
   // for each matching heuristic, calculate UCB value and 
   // find the maximum value and choose it as the heuristic
   for (var i = 0; i < heuristicList.length; i++) {
-<<<<<<< HEAD
-    var currentValue = findHeuristicAndExecute(heuristicList[i], UCBMatchProb);
-  }
-  // calculate average success rate
-=======
     var currentValue = findHeuristicAndExecute(heuristicList[i], UCB1);
     if (currentValue > currentMax) {
       currentBestHeuristic = heuristicList[i];
       currentMax = currentValue;
     }
-
-    // FOR DEBUGGING
-     console.log(heuristicList[i] + " = " + currentValue);
   }
 
-  console.log("****************************************");
-  console.log("The CHOSEN HEURISTIC is : " + currentBestHeuristic);
-  console.log("****************************************");
-
->>>>>>> fixed UCB1 algorithm bug that was returning NaN
   // end up with the chosenHeuristic
   var chosenHeuristic = currentBestHeuristic;
 
@@ -140,11 +125,19 @@ var Conversation = mongoose.model('Conversation', conversationSchema);
     case "MatchProbHiHi":
     partner = findPartnerWithMinDistance(user, queue, averageMatchProb);
     break;
+    case "MessagesSentHiLo":
+    partner = findPartnerWithMaxDistance(user, queue, averageMessagesSent);
+    break;
+    case "MessagesSentHiHi":
+    partner = findPartnerWithMinDistance(user, queue, averageMessagesSent);
+    break;
+    case "MessagesReceivedHiLo":
+    partner = findPartnerWithMaxDistance(user, queue, averageMessagesReceived);
+    break;
+    case "MessagesReceivedHiHi":
+    partner = findPartnerWithMinDistance(user, queue, averageMessagesReceived);
+    break;
   }
-
-  // FOR DEBUGGING
-  console.log("The partner is: \n");
-  console.log(partner);
 
   // Update field of both user and partner with the matching heuristic
   user.matchingHeuristic = chosenHeuristic;
@@ -183,7 +176,7 @@ var Random = function(user, queue) {
 var findPartnerWithMinDistance = function(user, queue, normFunction) {
 
   // compute average chat length for current user
-  var userValue = findUserAndExecute(user, normFunction);
+  var userAverage = findUserAndExecute(user, normFunction);
 
   // initialize running min variables
   var bestDistance = Number.POSITIVE_INFINITY;
@@ -231,13 +224,8 @@ var findPartnerWithMaxDistance = function(user, queue, normFunction) {
 // the result
 var findUserAndExecute = function(user, functionToApply) {
  var query = {$or: [{userID1: user.ownID}, {userID2: user.ownID}]};
- try {
-   var data = wait.forMethod(Conversation, "find", query);
-   return functionToApply(user, data);
- }
- catch(err) {
-  console.log("Error finding user " + user + " in the database!");
-}
+ var data = wait.forMethod(Conversation, "find", query);
+ return functionToApply(user, data);
 }
 
 // helper function to execute a function over the array 
@@ -246,14 +234,8 @@ var findUserAndExecute = function(user, functionToApply) {
 // FIXME: functionToApply signature add
 var findHeuristicAndExecute = function(heuristic, functionToApply) {
   var query = {matchingHeuristic: heuristic};
-  try {
-    var data = wait.forMethod(Conversation, "find", query);
-    console.log(data);
-    return functionToApply(data);
-  }
-  catch(err) {
-    console.log("Error finding the heuristic " + heuristic + " in the database!");
-  }
+  var data = wait.forMethod(Conversation, "find", query);
+  return functionToApply(data);
 }
 
 /******************************************************************************
@@ -266,7 +248,6 @@ var averageChatLength = function(user, convoArray) {
   var length = convoArray.length;
   for (var i = 0; i < length; i++) {
     sum = sum + convoArray[i].chatLength;
-    length++;
   }
   if (length > 0) return sum/length;
   else return 0;    
@@ -302,33 +283,51 @@ var averageClickProb = function(user, convoArray) {
   var length = convoArray.length;
   for (var i = 0; i < length; i++) {
     if (user.ownID === convoArray[i].userID1 && convoArray[i].user1Clicked) sum++;
-    if (user.ownID === convoArray[i].userID2 && convoArray[i].user2Clicked) sum++;
+    else if (user.ownID === convoArray[i].userID2 && convoArray[i].user2Clicked) sum++;
   }
   if (length > 0) return sum/length;
   else return 0;
 
 }
 
+var averageMessagesSent = function(user, convoArray) {
+  
+  var sum = 0.0;
+  var length = convoArray.length;
+  for (var i = 0; i < length; i++) {
+    if (user.ownID === convoArray[i].userID1) sum = sum + convoArray[i].user1MessagesSent;
+    else if (user.ownID === convoArray[i].userID2) sum = sum + convoArray[i].user2MessagesSent;
+  }
+  if (length > 0) return sum/length;
+  else return 0;
+}
+
+var averageMessagesReceived = function(user, convoArray) {
+
+  var sum = 0.0;
+  var length = convoArray.length;
+  for (var i = 0; i < length; i++) {
+    if (user.ownID === convoArray[i].userID1) sum = sum + convoArray[i].user2MessagesSent;
+    else if (user.ownID === convoArray[i].userID2) sum = sum + convoArray[i].user1MessagesSent;
+  }
+  if (length > 0) return sum/length;
+  else return 0;
+}
+
 var UCB1 = function(convoArray) {
 
   var thisHeuristicsSuccesses = 0.0;
 
-  // total number of times this 
+  // total number of times this heuristic has been used
   var thisHeuristicsPlays = convoArray.length;
+
+  // total number of times this heuristic has resulted in a successful match
   for (var i = 0; i < thisHeuristicsPlays; i++) {
     if (convoArray[i].user1Clicked && convoArray[i].user2Clicked) thisHeuristicsSuccesses++;
   }
 
   var allConversations = wait.forMethod(Conversation, "find");
   var allPlays = allConversations.length;
-
-  /* FOR DEBUGGING
-  console.log("thisHeuristicsSuccesses = " + thisHeuristicsSuccesses);
-  console.log("thisHeuristicsPlays = " + thisHeuristicsPlays);
-  console.log("thisHeuristicsSuccesses/thisHeuristicsPlays = " + (thisHeuristicsSuccesses/thisHeuristicsPlays));
-  console.log("allPlays = " + allPlays);
-  console.log("Math.sqrt(2*Math.log(allPlays)/thisHeuristicsPlays) = " + Math.sqrt(2*Math.log(allPlays)/thisHeuristicsPlays));
-  */ 
 
   var probabilityEstimate = thisHeuristicsSuccesses/thisHeuristicsPlays;
   var UCBoundEstimate = Math.sqrt(2*Math.log(allPlays)/thisHeuristicsPlays);
