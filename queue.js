@@ -18,6 +18,13 @@ exports.removeUser = function(user) {
   }
 }
 
+exports.containsUser = function(user) {
+  for (var i = 0; i < queue.length; i++) {    
+    if (queue[i].ownID === user.ownID) return true;
+  }
+  return false;
+}
+
 exports.length = function() {
   return queue.length;
 }
