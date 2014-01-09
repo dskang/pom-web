@@ -42,6 +42,20 @@
 }
 
 /* Chatroom */
+.ob-nav {
+  border-radius: 0px;
+  background-color: #F58025;
+  border-color: #DC670C;
+}
+
+.ob-nav a {
+  color: #000000;
+}
+
+.ob-nav li a:hover {
+  background-color: #F58025;
+}
+
 div#chatroom {
   display: block;
   height: 300px;
