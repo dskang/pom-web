@@ -41,30 +41,71 @@
   border-radius: 8px;
 }
 
-/* Chatroom */
-.ob-nav {
-  border-radius: 0px;
+/*
+ * Chatroom
+ */
+
+body {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 16px;
+  line-height: 1.4;
+  color: #333;
+  margin: 0;
+  background-color: #333;
+}
+
+.chat-container {
+  background-color: #FFF;
+  position: absolute;
+  max-width: 960px;
+  margin-left: auto;
+  margin-right: auto;
+  top: 50px;
+  bottom: 0;
+  left: 0;
+  right: 0;
+}
+
+/* Header */
+.nav {
+  box-sizing: border-box;
   background-color: #F58025;
-  border-color: #DC670C;
+  border-bottom: 1px solid #DC670C;
+  height: 50px;
+  text-align: center;
 }
 
-.ob-nav a {
-  color: #000000;
-}
-
-.ob-nav li a:hover {
-  background-color: #F58025;
-}
-
-div#chatroom {
+.nav a {
+  color: #000;
   display: block;
-  height: 300px;
-  border: 1px solid #999;
+  padding: 14px;
+  text-decoration: none;
+}
+
+.nav .brand {
+  font-size: 20px;
+  line-height: 22px;
+  font-weight: bold;
+}
+
+/* Messages */
+.chatroom {
+  position: absolute;
+  top: 0;
+  bottom: 140px;
+  left: 0;
+  right: 0;
   overflow: auto;
-  width: 100%;
-  margin-bottom: 10px;
   padding: 20px;
-  position: relative;
+}
+
+.chatroom ul {
+  margin: 0;
+  padding: 0;
+}
+
+.chatroom li {
+  list-style: none;
 }
 
 li.system {
@@ -74,4 +115,25 @@ li.system {
 li.leave {
   font-weight: bold;
   color: #F00;
+}
+
+/* Input */
+.input {
+  box-sizing: border-box;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 140px;
+  padding: 20px;
+}
+
+textarea {
+  box-sizing: border-box;
+  font-size: 16px;
+  line-height: 1.4;
+  resize: none;
+  width: 100%;
+  height: 100%;
+  padding: 15px;
 }

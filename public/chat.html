@@ -3,33 +3,23 @@
   <head>
     <title>Princeton Omegle</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css">
     <link href="css/style.css" rel="stylesheet" type="text/css" media="all">
   </head>
   <body>
-    <div class="navbar ob-nav" role="navigation">
-      <div class="container">
-        <div class="navbar-header">
-          <a class="navbar-brand" href="/">POM</a>
-        </div>
-        <div class="collapse navbar-collapse">
-          <ul class="nav navbar-nav navbar-right">
-            <li><a href="#">About</a></li>
-          </ul>
-        </div>
-      </div>
+    <div class="nav">
+      <a class="brand" href="/">POM</a>
     </div>
-    <div class="container" ng-controller="ChatCtrl">
-      <div id="chatroom">
-        <ul class="list-unstyled" ng-cloak>
+    <div ng-controller="ChatCtrl" class="chat-container">
+      <div class="chatroom">
+        <ul ng-cloak>
           <li ng-repeat="message in messages" ng-class="message.type">
           {{message.text}}
           </li>
         </ul>
       </div>
-      <form ng-submit="sendMessage()">
-        <input ng-model="message" type="text" class="form-control">
-      </form>
+      <div class="input">
+        <textarea rows="3" ng-model="message" ng-keydown="sendMessage($event)"></textarea>
+      </div>
     </div>
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.2.6/angular.min.js"></script>
