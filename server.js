@@ -15,7 +15,7 @@ var userID = null;
 // FIXME: Connect to Mongoose database
 mongoose.connect('mongodb://localhost/test');
 
-app.get('/', function(req, res) {
+app.get('/chat', function(req, res) {
 
   // Check IP address to remove non-Princeton users
   if (princeton.isValidIP(req.ip)) {
@@ -31,7 +31,7 @@ app.get('/', function(req, res) {
     }
 
     // Send the main chatroom page
-    res.sendfile(__dirname + '/public/index.html');
+    res.sendfile(__dirname + '/public/chat.html');
   } else {
     // FIXME : serve a denial page to non-Princeton users
     res.send('Sorry, this site is only for Princeton students!');
