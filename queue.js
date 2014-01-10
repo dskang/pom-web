@@ -7,20 +7,20 @@ exports.addUser = function(user) {
   queue.push(user);
 }
 
-exports.getPartner = function(currentUser) {
-  return conversation.pickPartner(currentUser, queue);
+exports.getPartner = function(user) {
+  return conversation.pickPartner(user, queue);
 }
 
 exports.removeUser = function(user) {
-  var location = queue.indexOf(user);
-  if (location !== -1) {
-    queue.splice(location, 1);
+  var index = queue.indexOf(user);
+  if (index !== -1) {
+    queue.splice(index, 1);
   }
 }
 
 exports.containsUser = function(user) {
-  for (var i = 0; i < queue.length; i++) {    
-    if (queue[i].ownID === user.ownID) return true;
+  for (var i = 0; i < queue.length; i++) {
+    if (queue[i].id === user.id) return true;
   }
   return false;
 }
