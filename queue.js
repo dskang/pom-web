@@ -28,7 +28,3 @@ exports.containsUser = function(user) {
 exports.length = function() {
   return queue.length;
 }
-
-exports.indexAt = function(i) {
-  return queue[i];
-}

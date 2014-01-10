@@ -2,9 +2,9 @@ var mongoose = require('mongoose')
 , Schema = mongoose.Schema;
 var wait = require('wait.for');
 
-var heuristicList = ["FIFO", "LIFO", "Random", "ChatLengthHiLo", 
-"ChatLengthHiHi", "LastVisitHiLo", "LastVisitHiHi", "ClickProbHiLo", 
-"ClickProbHiHi", "MatchProbHiLo", "MatchProbHiHi", "MessagesSentHiLo", 
+var heuristicList = ["FIFO", "LIFO", "Random", "ChatLengthHiLo",
+"ChatLengthHiHi", "LastVisitHiLo", "LastVisitHiHi", "ClickProbHiLo",
+"ClickProbHiHi", "MatchProbHiLo", "MatchProbHiHi", "MessagesSentHiLo",
 "MessagesSentHiHi", "MessagesReceivedHiLo", "MessagesReceivedHiHi"];
 
 /******************************************************************************
@@ -13,14 +13,14 @@ var heuristicList = ["FIFO", "LIFO", "Random", "ChatLengthHiLo",
 
 // Build new schema for database entry
 var conversationSchema = new Schema({
-  userID1: String, 
-  userID2: String, 
-  matchingHeuristic: String, 
-  chatLength: Number, 
-  startTime: Date, 
-  user1Clicked: Boolean, 
+  userID1: String,
+  userID2: String,
+  startTime: Date,
+  endTime: Date,
+  matchingHeuristic: String,
+  buttonDisplayed: Boolean,
+  user1Clicked: Boolean,
   user2Clicked: Boolean,
-  buttonDisplayed: Boolean, 
   user1MessagesSent: Number,
   user2MessagesSent: Number
 });
@@ -34,34 +34,22 @@ var Conversation = mongoose.model('Conversation', conversationSchema);
 * module.
 ******************************************************************************/
 
- // Check to see if the current conversation is already in the database. 
- // If it is, ignore it, otherwise create a new entry and add it to the 
- // database. 
- exports.save = function(user) {
-   Conversation.find()
-   .or([{userID1: user.ownID, userID2: user.partnerID, startTime: user.startTime},
-    {userID1: user.partnerID, userID2: user.ownID, startTime: user.startTime}])
-   .exec(function(err, convo) {
-    if (err) {
-      console.log("Error reading from the database!");
-    } else {
-      if (convo.length == 0) {
-        new Conversation({
-          userID1: user.ownID, 
-          userID2: user.partnerID, 
-          matchingHeuristic: user.matchingHeuristic, 
-          chatLength: Date.now() - user.startTime, 
-          startTime: user.startTime, 
-          user1Clicked: user.ownClick,
-          user2Clicked: user.partnerClick, 
-          buttonDisplayed: user.buttonDisplayed, 
-          user1MessagesSent: user.messagesSent,
-          user2MessagesSent: user.messagesReceived
-        }).save();
-      }
-    }
-  });
- }
+exports.save = function(conversation) {
+  var user1 = conversation.user1;
+  var user2 = conversation.user2;
+  new Conversation({
+    userID1: user1.id,
+    userID2: user2.id,
+    matchingHeuristic: conversation.matchingHeuristic,
+    startTime: conversation.startTime,
+    endTime: conversation.endTime,
+    buttonDisplayed: conversation.buttonDisplayed,
+    user1Clicked: user1.buttonClicked,
+    user2Clicked: user2.buttonClicked,
+    user1MessagesSent: user1.messagesSent,
+    user2MessagesSent: user2.messagesSent
+  }).save();
+};
 
  // Given a current user and a queue of potential matches, implement
  // the UCB1 algorithm with a pre-defined set of heuristics as the 
@@ -73,7 +61,7 @@ var Conversation = mongoose.model('Conversation', conversationSchema);
   var currentMax = 0;
   var currentBestHeuristic = null;
 
-  // for each matching heuristic, calculate UCB value and 
+  // for each matching heuristic, calculate UCB value and
   // find the maximum value and choose it as the heuristic
   for (var i = 0; i < heuristicList.length; i++) {
     var currentValue = findHeuristicAndExecute(heuristicList[i], UCB1);
@@ -247,10 +235,12 @@ var averageChatLength = function(user, convoArray) {
   var sum = 0.0;
   var length = convoArray.length;
   for (var i = 0; i < length; i++) {
-    sum = sum + convoArray[i].chatLength;
+    var conv = convoArray[i];
+    var chatLength = conv.endTime - conv.startTime;
+    sum += chatLength;
   }
   if (length > 0) return sum/length;
-  else return 0;    
+  else return 0;
 }
 
 var averageLastVisit = function(user, convoArray) {

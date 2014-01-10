@@ -24,8 +24,7 @@ function User(socket, userID) {
 
     if (!user.conversation.endTime) {
       user.conversation.endTime = Date.now();
-      // FIXME
-      // convo.save(this.conversation);
+      convo.save(user.conversation);
 
       user.partner.socket.emit('exit', {
         message: partnerName + ' has disconnected. Refresh the page to start another chat!'
