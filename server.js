@@ -10,6 +10,7 @@ var port = process.env.PORT || 3000;
 var app = express();
 app.use(express.cookieParser());
 
+// FIXME: userID is broken
 var userID = null;
 
 // FIXME: Connect to Mongoose database
@@ -25,7 +26,9 @@ app.get('/chat', function(req, res) {
     } else {
       // Otherwise, they're a new user, so assign them a random ID
       crypto.pseudoRandomBytes(16, function(err, buff) {
-       res.cookie('chatterID', buff.toString('hex'), {maxAge: 60*60*24*356*1000});
+       res.cookie('chatterID', buff.toString('hex'), {
+         maxAge: 60*60*24*356*1000
+       });
        userID = req.cookies.chatterID;
      });
     }
