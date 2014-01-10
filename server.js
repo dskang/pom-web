@@ -1,39 +1,31 @@
-var io = require('socket.io'),
-express = require('express'),
-princeton = require('./princeton'),
-mongoose = require('mongoose'),
-chatter = require('./chatter.js'),
-crypto = require('crypto'), 
-wait = require('wait.for');
+var express = require('express'),
+    app = express(),
+    server = require('http').createServer(app),
+    io = require('socket.io').listen(server),
+    princeton = require('./princeton'),
+    mongoose = require('mongoose'),
+    chatter = require('./chatter.js'),
+    crypto = require('crypto'),
+    wait = require('wait.for');
 
 var port = process.env.PORT || 3000;
-var app = express();
-app.use(express.cookieParser());
+server.listen(port);
 
-// FIXME: userID is broken
-var userID = null;
+app.use(express.cookieParser());
 
 // FIXME: Connect to Mongoose database
 mongoose.connect('mongodb://localhost/test');
 
 app.get('/chat', function(req, res) {
-
-  // Check IP address to remove non-Princeton users
   if (princeton.isValidIP(req.ip)) {
-    // If it's a returning user, read their userID
-    if ((typeof req.cookies.chatterID) !== 'undefined') {
-      userID = req.cookies.chatterID;
-    } else {
-      // Otherwise, they're a new user, so assign them a random ID
+    if (!req.cookies.chatterID) {
       crypto.pseudoRandomBytes(16, function(err, buff) {
        res.cookie('chatterID', buff.toString('hex'), {
          maxAge: 60*60*24*356*1000
        });
-       userID = req.cookies.chatterID;
      });
     }
 
-    // Send the main chatroom page
     res.sendfile(__dirname + '/public/chat.html');
   } else {
     // FIXME : serve a denial page to non-Princeton users
@@ -42,14 +34,27 @@ app.get('/chat', function(req, res) {
 });
 
 app.use(express.static(__dirname + '/public'));
-var chatRoom = io.listen(app.listen(port));
 
-// If the user is from Princeton, connect their socket to the chatroom
-chatRoom.sockets.on('connection', function (socket) {
-  if (princeton.isValidIP(socket.handshake.address.address)) {
+io.configure(function() {
+  io.set('authorization', function(handshakeData, callback) {
+    var isValid = princeton.isValidIP(handshakeData.address.address);
+    callback(null, isValid);
+  });
+});
 
-    // launch handler in wait.for Fiber
+function getValueFromCookie(name, cookie) {
+  var pairs = cookie.split('; ');
+  for (var i = 0; i < pairs.length; i++) {
+    var pair = pairs[i].split('=');
+    if (pair[0] === name) {
+      return pair[1];
+    }
+  }
+}
+
+io.sockets.on('connection', function (socket) {
+  var userID = getValueFromCookie('chatterID', socket.handshake.headers.cookie);
+  if (userID) {
     wait.launchFiber(chatter.connectChatter, socket, userID);
-
   }
 });
