@@ -17,8 +17,11 @@ app.configure('development', function() {
 });
 app.configure('production', function() {
   mongoUrl = process.env.MONGOHQ_URL;
+  // Needed to get the client's IP on Heroku for Express
+  app.enable('trust proxy');
 });
 mongoose.connect(mongoUrl);
+
 
 app.use(express.cookieParser());
 
@@ -46,7 +49,7 @@ var connectedUsers = {}
 io.configure('production', function() {
   io.set('authorization', function(handshakeData, callback) {
     // Check if Princeton IP
-    var ipAddr = handshakeData.address.address;
+    var ipAddr = getClientIP(handshakeData);
     var isValidIP = princeton.isValidIP(ipAddr);
     if (!isValidIP) {
       callback('Sorry, this site is only for Princeton students!', false);
@@ -60,6 +63,16 @@ io.configure('production', function() {
   });
 });
 
+// Needed to get the client's IP on Heroku for socket.io
+function getClientIP(handshakeData) {
+  var forwardedIps = handshakeData.headers['x-forwarded-for'];
+  if (forwardedIps) {
+    return forwardedIps.split(', ')[0];
+  } else {
+    return handshakeData.address.address;
+  }
+}
+
 function getValueFromCookie(name, cookie) {
   var pairs = cookie.split('; ');
   for (var i = 0; i < pairs.length; i++) {
@@ -72,7 +85,7 @@ function getValueFromCookie(name, cookie) {
 
 io.sockets.on('connection', function(socket) {
   // Add user to list of connected users
-  var ipAddr = socket.handshake.address.address;
+  var ipAddr = getClientIP(socket.handshake);
   connectedUsers[ipAddr] = true;
   socket.on('disconnect', function() {
     delete connectedUsers[ipAddr];
