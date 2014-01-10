@@ -13,7 +13,7 @@
       <div class="chatroom">
         <ul ng-cloak>
           <li ng-repeat="message in messages" ng-class="message.type">
-            <div ng-bind-html="message.text | newlines"></div>
+            <div ng-bind-html="message.text | linky | linkyNewlines"></div>
           </li>
         </ul>
       </div>

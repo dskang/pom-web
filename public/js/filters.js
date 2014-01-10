@@ -1,5 +1,6 @@
-app.filter('newlines', function() {
+app.filter('linkyNewlines', function() {
   return function(input) {
-    return input.replace(/\n/g, '<br/>');
+    // NB: 'linky' outputs new lines (\n) as html escaped tabs
+    return input.replace(/&#10;/g, '<br/>');
   }
 });
