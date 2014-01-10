@@ -10,7 +10,9 @@ var princetonIPs = [
 ];
 
 var isValidIP = function (userIP) {
-  if (userIP === "127.0.0.1" || range_check.in_range(userIP, "192.168.0.0/16")) {
+  if (userIP === "127.0.0.1" ||
+      range_check.in_range(userIP, "192.168.0.0/16") ||
+      range_check.in_range(userIP, "10.0.0.0/8")) {
     return true;
   }
   for (var i = 0; i < princetonIPs.length; i++) {
