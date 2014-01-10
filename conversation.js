@@ -133,8 +133,7 @@ exports.save = function(conversation) {
   }
 
   // Update field of both user and partner with the matching heuristic
-  user.matchingHeuristic = chosenHeuristic;
-  partner.matchingHeuristic = chosenHeuristic;
+  user.conversation.matchingHeuristic = chosenHeuristic;
   return partner;
 
 }

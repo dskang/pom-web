@@ -49,9 +49,9 @@ function User(socket, userID) {
   });
 }
 
-function Conversation(user1, user2) {
+function Conversation(user1) {
     this.user1 = user1,
-    this.user2 = user2,
+    this.user2 = null,
     this.startTime = Date.now(),
     this.endTime = null,
     this.matchingHeuristic = null,
@@ -74,14 +74,16 @@ exports.connectChatter = function(socket, userID) {
     });
 
   } else {
+    // Create conversation
+    var conversation = new Conversation(user);
+    user.conversation = conversation;
+
     // Match user with partner
     partner = queue.getPartner(user);
     user.partner = partner;
     partner.partner = user;
 
-    // Create conversation
-    var conversation = new Conversation(user, partner);
-    user.conversation = conversation;
+    conversation.user2 = partner;
     partner.conversation = conversation;
 
     // Notify users that they are connected
