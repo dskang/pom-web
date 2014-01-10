@@ -47,6 +47,12 @@ app.use(express.static(__dirname + '/public'));
 var connectedUsers = {}
 
 io.configure('production', function() {
+  io.enable('browser client minification');
+  io.enable('browser client etag');
+  io.enable('browser client gzip');
+  io.set('log level', 1);
+  io.set('transports', ['websocket']);
+
   io.set('authorization', function(handshakeData, callback) {
     // Check if Princeton IP
     var ipAddr = getClientIP(handshakeData);
