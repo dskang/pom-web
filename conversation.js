@@ -2,10 +2,11 @@ var mongoose = require('mongoose')
 , Schema = mongoose.Schema;
 var wait = require('wait.for');
 
-var heuristicList = ["FIFO", "LIFO", "Random", "ChatLengthHiLo",
-"ChatLengthHiHi", "LastVisitHiLo", "LastVisitHiHi", "ClickProbHiLo",
-"ClickProbHiHi", "MatchProbHiLo", "MatchProbHiHi", "MessagesSentHiLo",
-"MessagesSentHiHi", "MessagesReceivedHiLo", "MessagesReceivedHiHi"];
+var heuristicList = ["FIFO", "LIFO", "Random", "ChatLengthHiLo", 
+"ChatLengthHiHi", "LastVisitHiLo", "LastVisitHiHi", "ClickProbHiLo", 
+"ClickProbHiHi", "MatchProbHiLo", "MatchProbHiHi", "MessagesSentHiLo", 
+"MessagesSentHiHi", "MessagesReceivedHiLo", "MessagesReceivedHiHi", 
+"MessageDiscrepancyHiLo", "MessageDiscrepancyHiHi"];
 
 /******************************************************************************
 * Initialize mongoDB database schema and model
@@ -73,8 +74,6 @@ exports.save = function(conversation) {
 
   // end up with the chosenHeuristic
   var chosenHeuristic = currentBestHeuristic;
-
-  // var chosenHeuristic = "FIFO";
   var partner = null;
 
   // implement the matching heuristic chosen 
@@ -125,6 +124,12 @@ exports.save = function(conversation) {
     case "MessagesReceivedHiHi":
     partner = findPartnerWithMinDistance(user, queue, averageMessagesReceived);
     break;
+    case "MessageDiscrepancyHiLo":
+    partner = findPartnerWithMaxDistance(user, queue, averageMessageDiscrepancy);
+    break;
+    case "MessageDiscrepancyHiHi":
+    partner = findPartnerWithMinDistance(user, queue, averageMessageDiscrepancy);
+    break;
   }
 
   // Update field of both user and partner with the matching heuristic
@@ -159,8 +164,10 @@ var Random = function(user, queue) {
 }
 
 // This function finds the potential partner in queue that 
-// has the minimum distance to user with respect to the normFunction.
-// FIXME: ADD REQUIRED FUNCTION SIGNATURE FOR NORM FUNCTION
+// has the minimum distance to user with respect to the normFunction, 
+// where normFunction takes two arguments: the current user and 
+// an array of conversation objects representing the current user's 
+// conversation history.
 var findPartnerWithMinDistance = function(user, queue, normFunction) {
 
   // compute average chat length for current user
@@ -170,6 +177,7 @@ var findPartnerWithMinDistance = function(user, queue, normFunction) {
   var bestDistance = Number.POSITIVE_INFINITY;
   var bestMatch = null;
 
+  // find the max distance with respect to the normFunction
   for (var i = 0; i < queue.length; i++) {
     var currentAvg = findUserAndExecute(queue[i], normFunction);
     var currentDist = Math.abs(currentAvg - userAverage);
@@ -183,17 +191,20 @@ var findPartnerWithMinDistance = function(user, queue, normFunction) {
 }
 
 // This function finds the potential partner in queue that 
-// has the maximum distance to user with respect to the normFunction.
-// FIXME: ADD REQUIRED FUNCTION SIGNATURE FOR NORM FUNCTION
+// has the maximum distance to user with respect to the normFunction, 
+// where normFunction takes two arguments: the current user and 
+// an array of conversation objects representing the current user's 
+// conversation history.
 var findPartnerWithMaxDistance = function(user, queue, normFunction) {
 
   // compute average chat length for current user
   var userAverage = findUserAndExecute(user, normFunction);
 
   // initialize running max variables
-  var bestDistance = 0;
+  var bestDistance = Number.NEGATIVE_INFINITY;
   var bestMatch = null;
 
+  // find the max distance with respect to the normFunction
   for (var i = 0; i < queue.length; i++) {
     var currentAvg = findUserAndExecute(queue[i], normFunction);
     var currentDist = Math.abs(currentAvg - userAverage);
@@ -206,20 +217,20 @@ var findPartnerWithMaxDistance = function(user, queue, normFunction) {
   return bestMatch;
 }
 
-// FIXME: THESE TWO HELPER FUNCTION COMMENTS
-// This function executes the function to execute a function over the array 
-// conversations belonging to a particular user and return 
-// the result
+// This helper function executes functionToApply on the array 
+// of conversation representing the total history of the user 
+// and returns the result. Note that functionToApply takes in
+// both the current user object as well as the conversation 
+// history array.
 var findUserAndExecute = function(user, functionToApply) {
  var query = {$or: [{userID1: user.id}, {userID2: user.id}]};
  var data = wait.forMethod(Conversation, "find", query);
  return functionToApply(user, data);
 }
 
-// helper function to execute a function over the array 
-// conversations using a particular matching heuristics 
-// and return the result
-// FIXME: functionToApply signature add
+// This helper function executes functionToApply on the array 
+// of conversation representing the total history of the heuristic 
+// and returns the result.
 var findHeuristicAndExecute = function(heuristic, functionToApply) {
   var query = {matchingHeuristic: heuristic};
   var data = wait.forMethod(Conversation, "find", query);
@@ -230,6 +241,7 @@ var findHeuristicAndExecute = function(heuristic, functionToApply) {
 * Implement norm functions
 ******************************************************************************/
 
+// FIXME: Norm function brief descriptions
 var averageChatLength = function(user, convoArray) {
 
   var sum = 0.0;
@@ -328,6 +340,25 @@ var averageMessagesReceived = function(user, convoArray) {
   else return 0;
 }
 
+var averageMessageDiscrepancy = function(user, convoArray) {
+
+  var sum = 0.0;
+  var length = convoArray.length;
+  for (var i = 0; i < length; i++) {
+    if (user.ownID === convoArray[i].userID1) 
+      sum = sum + (convoArray[i].user1MessagesSent - convoArray[i].user2MessagesSent);
+    else if (user.ownID === convoArray[i].userID2) 
+      sum = sum + (convoArray[i].user2MessagesSent - convoArray[i].user1MessagesSent);
+  }
+  if (length > 0) return sum/length;
+  else return 0;
+}
+
+/******************************************************************************
+* Implement UCB1 function
+******************************************************************************/
+
+// FIXME: explain this function
 var UCB1 = function(convoArray) {
 
   var thisHeuristicsSuccesses = 0.0;
