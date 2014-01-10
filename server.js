@@ -11,10 +11,16 @@ var express = require('express'),
 var port = process.env.PORT || 3000;
 server.listen(port);
 
-app.use(express.cookieParser());
+var mongoUrl;
+app.configure('development', function() {
+  mongoUrl = 'mongodb://localhost/test';
+});
+app.configure('production', function() {
+  mongoUrl = process.env.MONGOHQ_URL;
+});
+mongoose.connect(mongoUrl);
 
-// FIXME: Connect to Mongoose database
-mongoose.connect('mongodb://localhost/test');
+app.use(express.cookieParser());
 
 app.get('/chat', function(req, res) {
   if (princeton.isValidIP(req.ip)) {
