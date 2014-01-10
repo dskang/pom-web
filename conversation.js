@@ -211,7 +211,7 @@ var findPartnerWithMaxDistance = function(user, queue, normFunction) {
 // conversations belonging to a particular user and return 
 // the result
 var findUserAndExecute = function(user, functionToApply) {
- var query = {$or: [{userID1: user.ownID}, {userID2: user.ownID}]};
+ var query = {$or: [{userID1: user.id}, {userID2: user.id}]};
  var data = wait.forMethod(Conversation, "find", query);
  return functionToApply(user, data);
 }
@@ -272,8 +272,8 @@ var averageClickProb = function(user, convoArray) {
   var sum = 0.0;
   var length = convoArray.length;
   for (var i = 0; i < length; i++) {
-    if (user.ownID === convoArray[i].userID1 && convoArray[i].user1Clicked) sum++;
-    else if (user.ownID === convoArray[i].userID2 && convoArray[i].user2Clicked) sum++;
+    if (user.id === convoArray[i].userID1 && convoArray[i].user1Clicked) sum++;
+    else if (user.id === convoArray[i].userID2 && convoArray[i].user2Clicked) sum++;
   }
   if (length > 0) return sum/length;
   else return 0;
@@ -285,8 +285,8 @@ var averageMessagesSent = function(user, convoArray) {
   var sum = 0.0;
   var length = convoArray.length;
   for (var i = 0; i < length; i++) {
-    if (user.ownID === convoArray[i].userID1) sum = sum + convoArray[i].user1MessagesSent;
-    else if (user.ownID === convoArray[i].userID2) sum = sum + convoArray[i].user2MessagesSent;
+    if (user.id === convoArray[i].userID1) sum = sum + convoArray[i].user1MessagesSent;
+    else if (user.id === convoArray[i].userID2) sum = sum + convoArray[i].user2MessagesSent;
   }
   if (length > 0) return sum/length;
   else return 0;
@@ -297,8 +297,8 @@ var averageMessagesReceived = function(user, convoArray) {
   var sum = 0.0;
   var length = convoArray.length;
   for (var i = 0; i < length; i++) {
-    if (user.ownID === convoArray[i].userID1) sum = sum + convoArray[i].user2MessagesSent;
-    else if (user.ownID === convoArray[i].userID2) sum = sum + convoArray[i].user1MessagesSent;
+    if (user.id === convoArray[i].userID1) sum = sum + convoArray[i].user2MessagesSent;
+    else if (user.id === convoArray[i].userID2) sum = sum + convoArray[i].user1MessagesSent;
   }
   if (length > 0) return sum/length;
   else return 0;
@@ -309,8 +309,8 @@ var averageMessagesSent = function(user, convoArray) {
   var sum = 0.0;
   var length = convoArray.length;
   for (var i = 0; i < length; i++) {
-    if (user.ownID === convoArray[i].userID1) sum = sum + convoArray[i].user1MessagesSent;
-    else if (user.ownID === convoArray[i].userID2) sum = sum + convoArray[i].user2MessagesSent;
+    if (user.id === convoArray[i].userID1) sum = sum + convoArray[i].user1MessagesSent;
+    else if (user.id === convoArray[i].userID2) sum = sum + convoArray[i].user2MessagesSent;
   }
   if (length > 0) return sum/length;
   else return 0;
@@ -321,8 +321,8 @@ var averageMessagesReceived = function(user, convoArray) {
   var sum = 0.0;
   var length = convoArray.length;
   for (var i = 0; i < length; i++) {
-    if (user.ownID === convoArray[i].userID1) sum = sum + convoArray[i].user2MessagesSent;
-    else if (user.ownID === convoArray[i].userID2) sum = sum + convoArray[i].user1MessagesSent;
+    if (user.id === convoArray[i].userID1) sum = sum + convoArray[i].user2MessagesSent;
+    else if (user.id === convoArray[i].userID2) sum = sum + convoArray[i].user1MessagesSent;
   }
   if (length > 0) return sum/length;
   else return 0;
