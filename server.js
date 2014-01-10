@@ -35,10 +35,23 @@ app.get('/chat', function(req, res) {
 
 app.use(express.static(__dirname + '/public'));
 
+var connectedUsers = {}
+
 io.configure(function() {
   io.set('authorization', function(handshakeData, callback) {
-    var isValid = princeton.isValidIP(handshakeData.address.address);
-    callback(null, isValid);
+    // Check if Princeton IP
+    var ipAddr = handshakeData.address.address;
+    var isValidIP = princeton.isValidIP(ipAddr);
+    if (!isValidIP) {
+      callback('Sorry, this site is only for Princeton students!', false);
+    }
+    // Check if already connected to server
+    var userID = getValueFromCookie('chatterID', handshakeData.headers.cookie);
+    if (userID in connectedUsers) {
+      callback('Sorry, you can only chat with one person at a time!', false);
+    } else {
+      callback(null, true);
+    }
   });
 });
 
@@ -52,9 +65,14 @@ function getValueFromCookie(name, cookie) {
   }
 }
 
-io.sockets.on('connection', function (socket) {
+io.sockets.on('connection', function(socket) {
   var userID = getValueFromCookie('chatterID', socket.handshake.headers.cookie);
   if (userID) {
+    connectedUsers[userID] = true;
+    socket.on('disconnect', function() {
+      delete connectedUsers[userID];
+    });
+    // FIXME
     wait.launchFiber(chatter.connectChatter, socket, userID);
   }
 });
