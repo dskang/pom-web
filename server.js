@@ -37,7 +37,7 @@ app.use(express.static(__dirname + '/public'));
 
 var connectedUsers = {}
 
-io.configure(function() {
+io.configure('production', function() {
   io.set('authorization', function(handshakeData, callback) {
     // Check if Princeton IP
     var ipAddr = handshakeData.address.address;
