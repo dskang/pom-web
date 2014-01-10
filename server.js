@@ -46,8 +46,7 @@ io.configure(function() {
       callback('Sorry, this site is only for Princeton students!', false);
     }
     // Check if already connected to server
-    var userID = getValueFromCookie('chatterID', handshakeData.headers.cookie);
-    if (userID in connectedUsers) {
+    if (ipAddr in connectedUsers) {
       callback('Sorry, you can only chat with one person at a time!', false);
     } else {
       callback(null, true);
@@ -66,12 +65,15 @@ function getValueFromCookie(name, cookie) {
 }
 
 io.sockets.on('connection', function(socket) {
+  // Add user to list of connected users
+  var ipAddr = socket.handshake.address.address;
+  connectedUsers[ipAddr] = true;
+  socket.on('disconnect', function() {
+    delete connectedUsers[ipAddr];
+  });
+
   var userID = getValueFromCookie('chatterID', socket.handshake.headers.cookie);
   if (userID) {
-    connectedUsers[userID] = true;
-    socket.on('disconnect', function() {
-      delete connectedUsers[userID];
-    });
     // FIXME
     wait.launchFiber(chatter.connectChatter, socket, userID);
   }
