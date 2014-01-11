@@ -66,7 +66,7 @@ exports.connectChatter = function(socket, userID) {
   if (queue.length() <= threshold) {
     queue.addUser(user);
     user.socket.emit('waiting', {
-      message: 'Waiting for partner to join.'
+      message: 'Waiting for another Princeton student to join . . .'
     });
 
     // FIXME: remove handler after user is taken off queue
@@ -90,7 +90,7 @@ exports.connectChatter = function(socket, userID) {
 
     // Notify users that they are connected
     var connectedMessage = {
-      message: 'Connected! Go ahead and start chatting.'
+      message: "You're now chatting with another Princeton student. Say hi!"
     };
     user.socket.emit('matched', connectedMessage);
     partner.socket.emit('matched', connectedMessage);
