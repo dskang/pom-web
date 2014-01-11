@@ -18,7 +18,13 @@
         </ul>
       </div>
       <div class="input">
-        <textarea autofocus rows="3" ng-model="message" ng-keydown="sendMessage($event)"></textarea>
+        <textarea
+          rows="3"
+          autofocus
+          tabindex="1"
+          ng-disabled="state != 'chatting'"
+          ng-model="message"
+          ng-keydown="sendMessage($event)"></textarea>
       </div>
     </div>
     <script src="/socket.io/socket.io.js"></script>
