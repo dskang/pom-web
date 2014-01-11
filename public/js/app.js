@@ -1,4 +1,4 @@
-var app = angular.module('pom', ['ngSanitize']);
+var app = angular.module('chatterbox', ['ngSanitize']);
 
 app.controller('ChatCtrl', function($scope, socket) {
   $scope.messages = [];

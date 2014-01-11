@@ -1,5 +1,5 @@
 {
-  "name": "pom",
+  "name": "chatterbox",
   "version": "0.0.1",
   "dependencies": {
     "socket.io": "*",
