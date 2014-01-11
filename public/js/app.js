@@ -1,87 +1,43 @@
 var app = angular.module('chatterbox', ['ngSanitize']);
 
-app.controller('ChatCtrl', function($scope, socket) {
-  $scope.messages = [];
-  $scope.state = null;
-
-  socket.on('error', function() {
-    // socket.io currently doesn't pass in custom error message
-    // https://github.com/LearnBoost/socket.io/issues/545
-    var messages = [
-      "Unable to connect. Please ensure the following:",
-      "1. You are using a computer connected to Princeton's network.",
-      "2. You are not already chatting with a user.",
-      "3. You are using a modern web browser that supports WebSockets.",
-      "4. You have a working Internet connection."
-    ];
-    for (var i = 0; i < messages.length; i++) {
-      $scope.messages.push({
-        type: 'leave',
-        text: messages[i]
-      });
-    }
-    $scope.state = 'error';
-  });
-
-  socket.on('connect', function() {
-    $scope.state = 'connected';
-  });
-
-  socket.on('entrance', function(data) {
-    $scope.messages.push({
-      type: 'system',
-      text: data.message
+app.run(function($window) {
+  $window.fbAsyncInit = function() {
+    FB.init({
+      // appId      : '190195584520995',
+      appId      : '272759306207368',
+      status     : true, // check login status
+      cookie     : true, // enable cookies to allow the server to access the session
+      xfbml      : true  // parse XFBML
     });
-  });
 
-  socket.on('waiting', function(data) {
-    $scope.messages.push({
-      type: 'system',
-      text: data.message
+    // Fired for any authentication related change
+    FB.Event.subscribe('auth.authResponseChange', function(response) {
+      if (response.status === 'connected') {
+        // User has logged in to the app
+        testAPI();
+      } else if (response.status === 'not_authorized') {
+        // User is logged into Facebook but not into the app
+        FB.login();
+      } else {
+        // User is not not logged into Facebook
+        FB.login();
+      }
     });
-    $scope.state = 'waiting';
-  });
-
-  socket.on('matched', function(data) {
-    $scope.messages.push({
-      type: 'system',
-      text: data.message
-    });
-    $scope.state = 'chatting';
-  });
-
-  socket.on('chat', function(data) {
-    $scope.messages.push({
-      type: 'normal',
-      text: data.message
-    });
-  });
-
-  socket.on('exit', function(data) {
-    $scope.messages.push({
-      type: 'leave',
-      text: data.message
-    });
-    $scope.state = 'finished';
-  });
-
-  socket.on('disconnect', function() {
-    if ($scope.state !== 'finished') {
-      $scope.messages.push({
-        type: 'leave',
-        text: 'You have been disconnected.'
-      });
-    }
-    $scope.state = 'disconnected';
-  });
-
-  $scope.sendMessage = function(e) {
-    if (e.keyCode == 13 && !e.shiftKey) {
-      e.preventDefault();
-      socket.emit('chat', {
-        message: $scope.message
-      });
-      $scope.message = '';
-    }
   };
+
+  // Load the SDK asynchronously
+  (function(d){
+    var js, id = 'facebook-jssdk', ref = d.getElementsByTagName('script')[0];
+    if (d.getElementById(id)) {return;}
+    js = d.createElement('script'); js.id = id; js.async = true;
+    js.src = "//connect.facebook.net/en_US/all.js";
+    ref.parentNode.insertBefore(js, ref);
+  }($window.document));
+
+  function testAPI() {
+    console.log('Welcome!  Fetching your information.... ');
+    FB.api('/me', function(response) {
+      console.log('Good to see you, ' + response.name + '.');
+    });
+  }
 });
