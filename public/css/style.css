@@ -77,8 +77,8 @@ body {
 
 .nav a {
   color: #000;
-  display: block;
-  padding: 14px;
+  display: inline-block;
+  margin: 14px;
   text-decoration: none;
 }
 
@@ -86,6 +86,70 @@ body {
   font-size: 20px;
   line-height: 22px;
   font-weight: bold;
+}
+
+/* Dropdown */
+.dropdown {
+  box-sizing: border-box;
+  z-index: 1;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  background-color: #EEE;
+  text-align: center;
+  padding: 15px;
+  font-size: 1.5em;
+  box-shadow: 0 8px 16px -6px #000;
+}
+
+.question, .options {
+  display: inline-block;
+  margin: 5px 10px;
+}
+
+.yes-btn, .no-btn {
+  width: 130px;
+  display: inline-block;
+  padding: 6px 12px;
+  font-size: 14px;
+  font-weight: normal;
+  line-height: 1.4;
+  text-align: center;
+  white-space: nowrap;
+  vertical-align: middle;
+  cursor: pointer;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  -o-user-select: none;
+  user-select: none;
+}
+
+.yes-btn {
+  color: #FFF;
+  background-color: #5CB85C;
+  border-color: #4CAE4C;
+}
+
+.yes-btn:hover {
+  color: #FFF;
+  background-color: #47A447;
+  border-color: #398439;
+}
+
+.no-btn {
+  color: #FFF;
+  background-color: #D9534F;
+  border-color: #D43F3A;
+}
+
+.no-btn:hover {
+  color: #FFF;
+  background-color: #D2322D;
+  border-color: #AC2925;
 }
 
 /* Messages */

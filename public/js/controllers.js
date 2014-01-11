@@ -1,6 +1,7 @@
 app.controller('ChatCtrl', function($scope, socket) {
   $scope.messages = [];
   $scope.state = null;
+  $scope.showDropdown = false;
 
   socket.on('error', function() {
     // socket.io currently doesn't pass in custom error message

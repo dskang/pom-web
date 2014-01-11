@@ -11,6 +11,15 @@
       <a class="brand" href="/">chatterbox</a>
     </div>
     <div ng-controller="ChatCtrl" class="chat-container">
+      <div class="dropdown" ng-show="showDropdown">
+        <div class="question">
+          Would you like to remove anonymization?
+        </div>
+        <div class="options">
+          <button type="button" class="yes-btn">Yes</button>
+          <button type="button" class="no-btn">Not now</button>
+        </div>
+      </div>
       <div class="chatroom" scroll-glue="true">
         <ul ng-cloak>
           <li ng-repeat="message in messages" ng-class="message.type">
