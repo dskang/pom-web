@@ -2,6 +2,7 @@ var app = angular.module('chatterbox', ['ngSanitize']);
 
 app.controller('ChatCtrl', function($scope, socket) {
   $scope.messages = [];
+  $scope.state = null;
 
   socket.on('error', function() {
     // socket.io currently doesn't pass in custom error message
@@ -12,11 +13,8 @@ app.controller('ChatCtrl', function($scope, socket) {
     });
   });
 
-  socket.on('disconnect', function() {
-    $scope.messages.push({
-      type: 'leave',
-      text: 'You have been disconnected. Refresh the page to start another chat!'
-    });
+  socket.on('connect', function() {
+    $scope.state = 'connected';
   });
 
   socket.on('entrance', function(data) {
@@ -31,11 +29,20 @@ app.controller('ChatCtrl', function($scope, socket) {
       type: 'system',
       text: data.message
     });
+    $scope.state = 'waiting';
   });
 
-  socket.on('ready', function(data) {
+  socket.on('matched', function(data) {
     $scope.messages.push({
       type: 'system',
+      text: data.message
+    });
+    $scope.state = 'chatting';
+  });
+
+  socket.on('chat', function(data) {
+    $scope.messages.push({
+      type: 'normal',
       text: data.message
     });
   });
@@ -45,13 +52,17 @@ app.controller('ChatCtrl', function($scope, socket) {
       type: 'leave',
       text: data.message
     });
+    $scope.state = 'finished';
   });
 
-  socket.on('chat', function(data) {
-    $scope.messages.push({
-      type: 'normal',
-      text: data.message
-    });
+  socket.on('disconnect', function() {
+    if ($scope.state !== 'finished') {
+      $scope.messages.push({
+        type: 'leave',
+        text: 'You have been disconnected.'
+      });
+    }
+    $scope.state = 'disconnected';
   });
 
   $scope.sendMessage = function(e) {

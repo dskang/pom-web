@@ -14,10 +14,6 @@ function User(socket, userID) {
   this.buttonClicked = false;
   this.messagesSent = 0;
 
-  this.socket.emit('entrance', {
-    message: 'Welcome to the chat room!'
-  });
-
   var user = this;
   this.socket.on('disconnect', function() {
     if (!user.conversation) return;
@@ -29,6 +25,7 @@ function User(socket, userID) {
       user.partner.socket.emit('exit', {
         message: partnerName + ' has disconnected. Refresh the page to start another chat!'
       });
+      user.partner.socket.disconnect();
     }
   });
 
@@ -62,6 +59,10 @@ exports.connectChatter = function(socket, userID) {
 
   var user = new User(socket, userID);
 
+  socket.emit('entrance', {
+    message: 'Welcome to chatterbox!'
+  });
+
   if (queue.length() <= threshold) {
     queue.addUser(user);
     user.socket.emit('waiting', {
@@ -80,6 +81,7 @@ exports.connectChatter = function(socket, userID) {
 
     // Match user with partner
     partner = queue.getPartner(user);
+    queue.removeUser(partner);
     user.partner = partner;
     partner.partner = user;
 
@@ -90,7 +92,7 @@ exports.connectChatter = function(socket, userID) {
     var connectedMessage = {
       message: 'Connected! Go ahead and start chatting.'
     };
-    user.socket.emit('ready', connectedMessage);
-    partner.socket.emit('ready', connectedMessage);
+    user.socket.emit('matched', connectedMessage);
+    partner.socket.emit('matched', connectedMessage);
   }
 };
