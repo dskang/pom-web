@@ -7,10 +7,20 @@ app.controller('ChatCtrl', function($scope, socket) {
   socket.on('error', function() {
     // socket.io currently doesn't pass in custom error message
     // https://github.com/LearnBoost/socket.io/issues/545
-    $scope.messages.push({
-      type: 'leave',
-      text: 'Sorry, you are either not using a computer at Princeton or are attempting to chat with more than one person at a time.'
-    });
+    var messages = [
+      'Unable to connect. Please ensure the following:',
+      '1. You are using a computer on the Princeton campus.',
+      '2. You are not already chatting with a user.',
+      '3. You are using a modern web browser that supports WebSockets.',
+      '4. You have a working Internet connection.'
+    ];
+    for (var i = 0; i < messages.length; i++) {
+      $scope.messages.push({
+        type: 'leave',
+        text: messages[i]
+      });
+    }
+    $scope.state = 'error';
   });
 
   socket.on('connect', function() {
