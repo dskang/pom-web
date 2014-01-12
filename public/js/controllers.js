@@ -114,8 +114,9 @@ app.controller('ChatCtrl', function($scope, socket) {
       messagesSent.partner++;
     }
 
-    var threshold = 1;
-    if (messagesSent.user == threshold && messagesSent.partner == threshold) {
+    var threshold = 1; // FIXME
+    if (messagesSent.user >= threshold && messagesSent.partner === threshold ||
+        messagesSent.user === threshold && messagesSent.partner >= threshold) {
       $scope.showDropdown = true;
       socket.emit('dropdown displayed');
     }

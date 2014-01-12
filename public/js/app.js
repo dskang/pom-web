@@ -1,11 +1,16 @@
 var app = angular.module('chatterbox', ['ngSanitize']);
 
-app.run(function($window) {
+app.run(function($window, $location) {
+  var appId;
+  if ($location.host() === 'localhost') {
+    appId = '272759306207368';
+  } else {
+    appId = '190195584520995';
+  }
   $window.fbAsyncInit = function() {
     FB.init({
-      // appId      : '190195584520995',
-      appId      : '272759306207368',
-      status     : true
+      appId: appId,
+      status: true
     });
   };
 
