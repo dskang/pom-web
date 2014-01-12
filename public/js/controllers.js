@@ -3,6 +3,11 @@ app.controller('ChatCtrl', function($scope, socket) {
   $scope.state = null;
   $scope.showDropdown = false;
 
+  var messagesSent = {
+    user: 0,
+    partner: 0
+  };
+
   socket.on('error', function() {
     // socket.io currently doesn't pass in custom error message
     // https://github.com/LearnBoost/socket.io/issues/545
@@ -56,6 +61,17 @@ app.controller('ChatCtrl', function($scope, socket) {
       name: data.name,
       text: data.message
     });
+
+    if (data.name === 'You') {
+      messagesSent.user++;
+    } else {
+      messagesSent.partner++;
+    }
+
+    var threshold = 1;
+    if (messagesSent.user >= threshold && messagesSent.partner >= threshold) {
+      $scope.showDropdown = true;
+    }
   });
 
   socket.on('exit', function(data) {
