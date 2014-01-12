@@ -192,6 +192,7 @@ body {
 
 /* Input */
 .input {
+  z-index: 2;
   box-sizing: border-box;
   position: absolute;
   bottom: 0;

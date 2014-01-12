@@ -95,10 +95,12 @@ app.controller('ChatCtrl', function($scope, socket) {
   $scope.sendMessage = function(e) {
     if (e.keyCode == 13 && !e.shiftKey) {
       e.preventDefault();
-      socket.emit('chat', {
-        message: $scope.message
-      });
-      $scope.message = '';
+      if ($scope.message.length > 0) {
+        socket.emit('chat', {
+          message: $scope.message
+        });
+        $scope.message = '';
+      }
     }
   };
 });
