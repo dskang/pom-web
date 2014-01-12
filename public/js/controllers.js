@@ -3,6 +3,52 @@ app.controller('ChatCtrl', function($scope, socket) {
   $scope.state = null;
   $scope.showDropdown = false;
 
+  $scope.revealIdentity = function() {
+    var sendIdentity = function() {
+      FB.api('/me', function(response) {
+        socket.emit('identity', {
+          name: response.name,
+          link: response.link
+        });
+      });
+    };
+
+    // Verify that the Facebook account seems legitimate
+    var verifyIdentity = function() {
+      FB.api('/me/friends?limit=100', function(response) {
+        if (response.data.length === 100) {
+          sendIdentity();
+        } else {
+          $scope.$apply(function() {
+            $scope.messages.push({
+              type: 'warning',
+              text: 'Unable to remove anonymization: Your Facebook account does not appear to be legitimate.'
+            });
+          });
+        }
+      });
+    };
+
+    FB.getLoginStatus(function(response) {
+      if (response.status === 'connected') {
+        verifyIdentity();
+      } else {
+        FB.Event.subscribe('auth.login', function(response) {
+          if (response.status === 'connected') {
+            verifyIdentity();
+          }
+        });
+        FB.login();
+      }
+    });
+
+    $scope.showDropdown = false;
+    $scope.messages.push({
+      type: 'system',
+      text: 'Identities will be revealed when both parties have opted to remove anonymization.'
+    });
+  };
+
   var messagesSent = {
     user: 0,
     partner: 0
@@ -20,7 +66,7 @@ app.controller('ChatCtrl', function($scope, socket) {
     ];
     for (var i = 0; i < messages.length; i++) {
       $scope.messages.push({
-        type: 'leave',
+        type: 'warning',
         text: messages[i]
       });
     }
@@ -69,14 +115,23 @@ app.controller('ChatCtrl', function($scope, socket) {
     }
 
     var threshold = 1;
-    if (messagesSent.user >= threshold && messagesSent.partner >= threshold) {
+    if (messagesSent.user == threshold && messagesSent.partner == threshold) {
       $scope.showDropdown = true;
+      socket.emit('dropdown displayed');
     }
+  });
+
+  socket.on('reveal', function(data) {
+    $scope.messages.push({
+      type: 'reveal',
+      partnerName: data.name,
+      partnerLink: data.link
+    });
   });
 
   socket.on('exit', function(data) {
     $scope.messages.push({
-      type: 'leave',
+      type: 'warning',
       text: data.message
     });
     $scope.state = 'finished';
@@ -85,7 +140,7 @@ app.controller('ChatCtrl', function($scope, socket) {
   socket.on('disconnect', function() {
     if ($scope.state !== 'finished') {
       $scope.messages.push({
-        type: 'leave',
+        type: 'warning',
         text: 'You have been disconnected.'
       });
     }

@@ -3,8 +3,6 @@ var queue = require('./queue.js'),
 
 // FIXME: make this larger than 0
 var threshold = 0;
-var userName = 'You';
-var partnerName = 'Anonymous Tiger';
 
 function User(socket, userID) {
   this.socket = socket;
@@ -13,6 +11,8 @@ function User(socket, userID) {
   this.conversation = null;
   this.buttonClicked = false;
   this.messagesSent = 0;
+  this.name = null;
+  this.fbLink = null;
 
   var user = this;
   this.socket.on('disconnect', function() {
@@ -22,8 +22,9 @@ function User(socket, userID) {
       user.conversation.endTime = Date.now();
       convo.save(user.conversation);
 
+      var userName = user.conversation.revealed ? user.name : 'Anonymous Tiger';
       user.partner.socket.emit('exit', {
-        message: partnerName + ' has disconnected. Refresh the page to start another chat!'
+        message: userName + ' has disconnected. Refresh the page to start another chat!'
       });
       user.partner.socket.disconnect();
     }
@@ -34,27 +35,48 @@ function User(socket, userID) {
 
     user.messagesSent++;
     user.socket.emit('chat', {
-      name: userName,
+      name: 'You',
       message: data.message
     });
+
+    var userName = user.conversation.revealed ? user.name : 'Anonymous Tiger';
     user.partner.socket.emit('chat', {
-      name: partnerName,
+      name: userName,
       message: data.message
     });
   });
 
-  this.socket.on('reveal-button', function(data) {
+  this.socket.on('dropdown displayed', function(data) {
     user.conversation.buttonDisplayed = true;
+  });
+
+  this.socket.on('identity', function(data) {
+    user.name = data.name;
+    user.fbLink = data.link;
+    user.buttonClicked = true;
+
+    if (user.partner.buttonClicked) {
+      user.socket.emit('reveal', {
+        name: user.partner.name,
+        link: user.partner.fbLink
+      });
+      user.partner.socket.emit('reveal', {
+        name: user.name,
+        link: user.fbLink
+      });
+      user.conversation.revealed = true;
+    }
   });
 }
 
 function Conversation(user1) {
-    this.user1 = user1,
-    this.user2 = null,
-    this.startTime = Date.now(),
-    this.endTime = null,
-    this.matchingHeuristic = null,
-    this.buttonDisplayed = false
+    this.user1 = user1;
+    this.user2 = null;
+    this.startTime = Date.now();
+    this.endTime = null;
+    this.matchingHeuristic = null;
+    this.buttonDisplayed = false;
+    this.revealed = false;
 }
 
 exports.connectChatter = function(socket, userID) {

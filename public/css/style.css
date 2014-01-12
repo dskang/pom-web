@@ -173,11 +173,12 @@ body {
   list-style: none;
 }
 
-.name {
+.userName {
   font-weight: bold;
 }
 
-.partner {
+.partnerName {
+  font-weight: bold;
   color: #F58025;
 }
 
@@ -185,9 +186,17 @@ body {
   font-weight: bold;
 }
 
-.leave {
+.warning {
   font-weight: bold;
   color: #F00;
+}
+
+.reveal {
+  font-weight: bold;
+}
+
+.reveal a {
+  color: #333;
 }
 
 /* Input */

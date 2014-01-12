@@ -11,12 +11,12 @@
       <a class="brand" href="/">chatterbox</a>
     </div>
     <div ng-controller="ChatCtrl" class="chat-container">
-      <div class="dropdown" ng-show="showDropdown" ng-cloak>
+      <div class="dropdown" ng-show="showDropdown && state == 'chatting'" ng-cloak>
         <div class="question">
           Would you like to remove anonymization?
         </div>
         <div class="options">
-          <button type="button" class="yes-btn">Yes</button>
+          <button type="button" class="yes-btn" ng-click="revealIdentity()">Yes</button>
           <button type="button" class="no-btn">Not now</button>
         </div>
       </div>
@@ -24,11 +24,15 @@
         <ul ng-cloak>
           <li ng-repeat="message in messages" ng-class="message.type" ng-switch="message.type">
             <div ng-switch-when="chat">
-              <span class="name" ng-class="{partner:message.isPartner}">{{message.name}}:</span>
+              <span ng-class="{userName: !message.isPartner, partnerName: message.isPartner}">{{message.name}}:</span>
               <span ng-bind-html="message.text | linky | linkyNewlines"></span>
             </div>
+            <div ng-switch-when="reveal">
+              Congratulations! Both parties have opted to remove anonymization.<br>
+              You have been chatting with: <a href="{{message.partnerLink}}" target="_blank">{{message.partnerName}}</a>
+            </div>
             <div ng-switch-default>
-              <span ng-bind-html="message.text | linky | linkyNewlines"></span>
+              {{message.text }}
             </div>
           </li>
         </ul>
