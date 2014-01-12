@@ -5,19 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="css/style.css" rel="stylesheet" type="text/css" media="all">
   </head>
-  <body>
+  <body ng-controller="ChatCtrl">
     <div id="fb-root"></div>
     <div class="nav">
-      <a class="brand" href="/">chatterbox</a>
+      <div class="nav-container">
+        <span class="brand" href="/">chatterbox</span>
+        <a class="circle" ng-show="showDropdown == false && dropdownShown == true && selfRevealed == false && state == 'chatting'" ng-click="showDropdown = true"></a>
+      </div>
     </div>
-    <div ng-controller="ChatCtrl" class="chat-container">
+    <div class="chat-container">
       <div class="dropdown" ng-show="showDropdown && state == 'chatting'" ng-cloak>
         <div class="question">
           Would you like to remove anonymization?
         </div>
         <div class="options">
           <button type="button" class="yes-btn" ng-click="revealIdentity()">Yes</button>
-          <button type="button" class="no-btn">Not now</button>
+          <button type="button" class="no-btn" ng-click="showDropdown = false">Not now</button>
         </div>
       </div>
       <div class="chatroom" cb-scroll-glue>

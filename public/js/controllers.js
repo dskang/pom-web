@@ -2,6 +2,8 @@ app.controller('ChatCtrl', function($scope, socket) {
   $scope.messages = [];
   $scope.state = null;
   $scope.showDropdown = false;
+  $scope.dropdownShown = false;
+  $scope.selfRevealed = false;
 
   $scope.revealIdentity = function() {
     var sendIdentity = function() {
@@ -9,6 +11,12 @@ app.controller('ChatCtrl', function($scope, socket) {
         socket.emit('identity', {
           name: response.name,
           link: response.link
+        });
+      });
+      $scope.$apply(function() {
+        $scope.messages.push({
+          type: 'system',
+          text: 'Identities will be revealed when both parties have opted to remove anonymization.'
         });
       });
     };
@@ -43,10 +51,7 @@ app.controller('ChatCtrl', function($scope, socket) {
     });
 
     $scope.showDropdown = false;
-    $scope.messages.push({
-      type: 'system',
-      text: 'Identities will be revealed when both parties have opted to remove anonymization.'
-    });
+    $scope.selfRevealed = true;
   };
 
   var messagesSent = {
@@ -115,9 +120,11 @@ app.controller('ChatCtrl', function($scope, socket) {
     }
 
     var threshold = 1; // FIXME
-    if (messagesSent.user >= threshold && messagesSent.partner === threshold ||
-        messagesSent.user === threshold && messagesSent.partner >= threshold) {
+    if (!$scope.dropdownShown &&
+        messagesSent.user >= threshold &&
+        messagesSent.partner >= threshold) {
       $scope.showDropdown = true;
+      $scope.dropdownShown = true;
       socket.emit('dropdown displayed');
     }
   });
