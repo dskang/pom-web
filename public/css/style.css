@@ -55,29 +55,29 @@ body {
 }
 
 .chat-container {
-  background-color: #FFF;
   position: absolute;
-  max-width: 960px;
-  margin-left: auto;
-  margin-right: auto;
   top: 50px;
   bottom: 0;
   left: 0;
   right: 0;
+  background-color: #FFF;
+  max-width: 960px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 /* Header */
 .nav {
+  z-index: 2;
+  position: absolute;
+  left: 0;
+  right: 0;
   box-sizing: border-box;
   background-color: #F58025;
   border-bottom: 1px solid #DC670C;
   height: 50px;
   line-height: 50px;
   text-align: center;
-  position: absolute;
-  left: 0;
-  right: 0;
-  z-index: 3;
 }
 
 .nav .brand {
@@ -109,12 +109,12 @@ body {
 
 /* Dropdown */
 .dropdown {
-  box-sizing: border-box;
   z-index: 1;
   position: absolute;
   top: 0;
   left: 0;
   right: 0;
+  box-sizing: border-box;
   background-color: #EEE;
   text-align: center;
   padding: 15px;
@@ -233,12 +233,12 @@ body {
 
 /* Input */
 .input {
-  z-index: 2;
-  box-sizing: border-box;
+  z-index: 3; /* for mobile */
   position: absolute;
   bottom: 0;
   left: 0;
   right: 0;
+  box-sizing: border-box;
   height: 140px;
   padding: 20px;
 }
