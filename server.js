@@ -26,20 +26,14 @@ mongoose.connect(mongoUrl);
 app.use(express.cookieParser());
 
 app.get('/chat', function(req, res) {
-  if (princeton.isValidIP(req.ip)) {
-    if (!req.cookies.chatterID) {
-      crypto.pseudoRandomBytes(16, function(err, buff) {
-       res.cookie('chatterID', buff.toString('hex'), {
-         maxAge: 60*60*24*356*1000
-       });
+  if (!req.cookies.chatterID) {
+    crypto.pseudoRandomBytes(16, function(err, buff) {
+     res.cookie('chatterID', buff.toString('hex'), {
+       maxAge: 60*60*24*356*1000
      });
-    }
-
-    res.sendfile(__dirname + '/public/chat.html');
-  } else {
-    // FIXME : serve a denial page to non-Princeton users
-    res.send('Sorry, this site is only for Princeton students!');
+   });
   }
+  res.sendfile(__dirname + '/public/chat.html');
 });
 
 app.use(express.static(__dirname + '/public'));
