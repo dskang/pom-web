@@ -1,9 +1,19 @@
-app.controller('ChatCtrl', function($scope, socket) {
+app.controller('ChatCtrl', function($scope, $window, socket) {
   $scope.messages = [];
   $scope.state = null;
   $scope.showDropdown = false;
   $scope.dropdownShown = false;
   $scope.selfRevealed = false;
+
+  $scope.$watch('state', function(value) {
+    if (value === 'chatting') {
+      $window.onbeforeunload = function() {
+        return 'Leaving this page will end your conversation.';
+      };
+    } else {
+      $window.onbeforeunload = null;
+    }
+  });
 
   $scope.revealIdentity = function() {
     var sendIdentity = function() {
