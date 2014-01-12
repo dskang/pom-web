@@ -5,9 +5,7 @@ app.run(function($window) {
     FB.init({
       // appId      : '190195584520995',
       appId      : '272759306207368',
-      status     : true, // check login status
-      cookie     : true, // enable cookies to allow the server to access the session
-      xfbml      : true  // parse XFBML
+      status     : true
     });
   };
 
