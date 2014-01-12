@@ -11,7 +11,7 @@
       <a class="brand" href="/">chatterbox</a>
     </div>
     <div ng-controller="ChatCtrl" class="chat-container">
-      <div class="dropdown" ng-show="showDropdown">
+      <div class="dropdown" ng-show="showDropdown" ng-cloak>
         <div class="question">
           Would you like to remove anonymization?
         </div>
@@ -20,18 +20,24 @@
           <button type="button" class="no-btn">Not now</button>
         </div>
       </div>
-      <div class="chatroom" scroll-glue="true">
+      <div class="chatroom" cb-scroll-glue>
         <ul ng-cloak>
-          <li ng-repeat="message in messages" ng-class="message.type">
-            <div ng-bind-html="message.text | linky | linkyNewlines"></div>
+          <li ng-repeat="message in messages" ng-class="message.type" ng-switch="message.type">
+            <div ng-switch-when="chat">
+              <span class="name" ng-class="{partner:message.isPartner}">{{message.name}}:</span>
+              <span ng-bind-html="message.text | linky | linkyNewlines"></span>
+            </div>
+            <div ng-switch-default>
+              <span ng-bind-html="message.text | linky | linkyNewlines"></span>
+            </div>
           </li>
         </ul>
       </div>
       <div class="input">
         <textarea
           rows="3"
-          autofocus
           tabindex="1"
+          cb-focus-on-chat
           ng-disabled="state != 'chatting'"
           ng-model="message"
           ng-keydown="sendMessage($event)"></textarea>

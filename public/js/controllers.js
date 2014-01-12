@@ -51,7 +51,9 @@ app.controller('ChatCtrl', function($scope, socket) {
 
   socket.on('chat', function(data) {
     $scope.messages.push({
-      type: 'normal',
+      type: 'chat',
+      isPartner: data.name !== 'You',
+      name: data.name,
       text: data.message
     });
   });

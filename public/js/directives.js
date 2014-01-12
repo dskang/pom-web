@@ -1,7 +1,7 @@
-app.directive('scrollGlue', function() {
-  return function(scope, element, attrs) {
+app.directive('cbScrollGlue', function() {
+  return function(scope, element) {
     var el = element[0];
-    var shouldScroll = attrs.scrollGlue;
+    var shouldScroll = true;
 
     function scrollToBottom() {
       el.scrollTop = el.scrollHeight;
@@ -18,6 +18,18 @@ app.directive('scrollGlue', function() {
     scope.$watch(function() {
       if (shouldScroll) {
         scrollToBottom();
+      }
+    });
+  };
+});
+
+app.directive('cbFocusOnChat', function($timeout) {
+  return function(scope, element) {
+    scope.$watch('state', function(value) {
+      if (value === 'chatting') {
+        $timeout(function() {
+          element[0].focus();
+        });
       }
     });
   };

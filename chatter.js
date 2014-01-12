@@ -34,10 +34,12 @@ function User(socket, userID) {
 
     user.messagesSent++;
     user.socket.emit('chat', {
-      message: userName + ': ' + data.message
+      name: userName,
+      message: data.message
     });
     user.partner.socket.emit('chat', {
-      message: partnerName + ': ' + data.message
+      name: partnerName,
+      message: data.message
     });
   });
 
@@ -66,7 +68,7 @@ exports.connectChatter = function(socket, userID) {
   if (queue.length() <= threshold) {
     queue.addUser(user);
     user.socket.emit('waiting', {
-      message: 'Waiting for another Princeton student to join . . .'
+      message: 'Waiting for another Princeton student to join...'
     });
 
     // FIXME: remove handler after user is taken off queue
