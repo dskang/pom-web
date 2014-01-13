@@ -5,8 +5,7 @@ var express = require('express'),
     princeton = require('./princeton'),
     mongoose = require('mongoose'),
     chatter = require('./chatter.js'),
-    crypto = require('crypto'),
-    wait = require('wait.for');
+    crypto = require('crypto');
 
 var port = process.env.PORT || 3000;
 server.listen(port);
@@ -93,7 +92,6 @@ io.sockets.on('connection', function(socket) {
 
   var userID = getValueFromCookie('chatterID', socket.handshake.headers.cookie);
   if (userID) {
-    // FIXME
-    wait.launchFiber(chatter.connectChatter, socket, userID);
+    chatter.connectChatter(socket, userID);
   }
 });

@@ -1,5 +1,5 @@
-var queue = require('./queue.js'),
-    convo = require('./conversation.js');
+var convo = require('./conversation.js');
+var queue = new Array();
 
 // FIXME: make this larger than 0
 var threshold = 0;
@@ -103,15 +103,15 @@ exports.connectChatter = function(socket, userID) {
     message: 'Welcome to Tigers Anonymous!'
   });
 
-  if (queue.length() <= threshold) {
-    queue.addUser(user);
+  if (queue.length <= threshold) {
+    queue.push(user);
     user.socket.emit('waiting', {
       message: 'Waiting for another Princeton student to join...'
     });
 
     // FIXME: remove handler after user is taken off queue
     user.socket.on('disconnect', function() {
-      queue.removeUser(user);
+      queue.splice(queue.indexOf(user), 1);
     });
 
   } else {
@@ -120,8 +120,8 @@ exports.connectChatter = function(socket, userID) {
     user.conversation = conversation;
 
     // Match user with partner
-    partner = queue.getPartner(user);
-    queue.removeUser(partner);
+    convo.pickPartner(user, queue, function(partner) {
+
     user.partner = partner;
     partner.partner = user;
 
@@ -134,5 +134,7 @@ exports.connectChatter = function(socket, userID) {
     };
     user.socket.emit('matched', connectedMessage);
     partner.socket.emit('matched', connectedMessage);
+
+  });
   }
 };
