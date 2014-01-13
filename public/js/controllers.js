@@ -16,6 +16,9 @@ app.controller('ChatCtrl', function($scope, $window, socket) {
   });
 
   $scope.revealIdentity = function() {
+    $scope.showDropdown = false;
+    $scope.selfRevealed = true;
+
     var sendIdentity = function() {
       FB.api('/me', function(response) {
         socket.emit('identity', {
@@ -51,17 +54,18 @@ app.controller('ChatCtrl', function($scope, $window, socket) {
       if (response.status === 'connected') {
         verifyIdentity();
       } else {
-        FB.Event.subscribe('auth.login', function(response) {
-          if (response.status === 'connected') {
+        FB.login(function(response) {
+          if (response.authResponse) {
             verifyIdentity();
+          } else {
+            $scope.$apply(function() {
+              $scope.showDropdown = true;
+              $scope.selfRevealed = false;
+            });
           }
         });
-        FB.login();
       }
     });
-
-    $scope.showDropdown = false;
-    $scope.selfRevealed = true;
   };
 
   var messagesSent = {
