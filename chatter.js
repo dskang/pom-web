@@ -47,10 +47,14 @@ function User(socket, userID) {
   });
 
   this.socket.on('dropdown displayed', function(data) {
+    if (!user.conversation) return;
+
     user.conversation.buttonDisplayed = true;
   });
 
   this.socket.on('identity', function(data) {
+    if (!user.conversation) return;
+
     user.name = data.name;
     user.fbLink = data.link;
     user.buttonClicked = true;
@@ -66,6 +70,18 @@ function User(socket, userID) {
       });
       user.conversation.revealed = true;
     }
+  });
+
+  this.socket.on('typing', function() {
+    if (!user.conversation) return;
+
+    user.partner.socket.emit('typing');
+  });
+
+  this.socket.on('not typing', function() {
+    if (!user.conversation) return;
+
+    user.partner.socket.emit('not typing');
   });
 }
 

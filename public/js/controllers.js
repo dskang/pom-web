@@ -1,4 +1,5 @@
 app.controller('ChatCtrl', function($scope, $window, socket) {
+  $scope.partnerName = 'Anonymous Tiger';
   $scope.messages = [];
   $scope.state = null;
   $scope.showDropdown = false;
@@ -144,6 +145,7 @@ app.controller('ChatCtrl', function($scope, $window, socket) {
   });
 
   socket.on('reveal', function(data) {
+    $scope.partnerName = data.name;
     $scope.messages.push({
       type: 'reveal',
       partnerName: data.name,
@@ -177,7 +179,28 @@ app.controller('ChatCtrl', function($scope, $window, socket) {
           message: $scope.message
         });
         $scope.message = '';
+        prevMessageLength = 0;
+        socket.emit('not typing');
       }
     }
   };
+
+  // Realtime typing
+  var prevMessageLength = 0;
+  $scope.updateTyping = function() {
+    if (prevMessageLength === 0 && $scope.message.length > 0) {
+      socket.emit('typing');
+    } else if ($scope.message.length === 0) {
+      socket.emit('not typing');
+    }
+    prevMessageLength = $scope.message.length;
+  };
+
+  socket.on('typing', function() {
+    $scope.partnerTyping = true;
+  });
+
+  socket.on('not typing', function() {
+    $scope.partnerTyping = false;
+  });
 });

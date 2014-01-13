@@ -38,6 +38,8 @@
               {{message.text }}
             </div>
           </li>
+          <li class="typing" ng-show="partnerTyping && state == 'chatting'">
+            {{partnerName}} is typing...
         </ul>
       </div>
       <div class="input">
@@ -47,7 +49,8 @@
           cb-focus-on-chat
           ng-disabled="state != 'chatting'"
           ng-model="message"
-          ng-keydown="sendMessage($event)"></textarea>
+          ng-keydown="sendMessage($event)"
+          ng-change="updateTyping()"></textarea>
       </div>
     </div>
     <script src="/socket.io/socket.io.js"></script>

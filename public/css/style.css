@@ -231,6 +231,10 @@ body {
   color: #333;
 }
 
+.typing {
+  font-weight: bold;
+}
+
 /* Input */
 .input {
   z-index: 3; /* for mobile */
