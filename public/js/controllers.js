@@ -134,7 +134,7 @@ app.controller('ChatCtrl', function($scope, $window, socket) {
       messagesSent.partner++;
     }
 
-    var threshold = 1; // FIXME
+    var threshold = 5; // FIXME
     if (!$scope.dropdownShown &&
         messagesSent.user >= threshold &&
         messagesSent.partner >= threshold) {

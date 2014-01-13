@@ -100,7 +100,7 @@ exports.connectChatter = function(socket, userID) {
   var user = new User(socket, userID);
 
   socket.emit('entrance', {
-    message: 'Welcome to chatterbox!'
+    message: 'Welcome to Tigers Anonymous!'
   });
 
   if (queue.length() <= threshold) {

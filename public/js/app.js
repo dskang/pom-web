@@ -1,4 +1,4 @@
-var app = angular.module('chatterbox', ['ngSanitize', 'ngAnimate']);
+var app = angular.module('pom', ['ngSanitize', 'ngAnimate']);
 
 app.run(function($window, $location) {
   var appId;

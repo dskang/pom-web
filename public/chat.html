@@ -1,7 +1,7 @@
 <!DOCTYPE html>
-<html ng-app="chatterbox">
+<html ng-app="pom">
   <head>
-    <title>chatterbox</title>
+    <title>Tigers Anonymous</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="css/style.css" rel="stylesheet" type="text/css" media="all">
   </head>
@@ -9,7 +9,7 @@
     <div id="fb-root"></div>
     <div class="nav">
       <div class="nav-container">
-        <span class="brand" href="/">chatterbox</span>
+        <span class="brand" href="/">Tigers Anonymous</span>
         <a class="circle" ng-show="showDropdown == false && dropdownShown == true && selfRevealed == false && state == 'chatting'" ng-click="showDropdown = true"></a>
       </div>
     </div>
@@ -23,7 +23,7 @@
           <button type="button" class="no-btn" ng-click="showDropdown = false">Not now</button>
         </div>
       </div>
-      <div class="chatroom" cb-scroll-glue>
+      <div class="chatroom" pom-scroll-glue>
         <ul ng-cloak>
           <li ng-repeat="message in messages" ng-class="message.type" ng-switch="message.type">
             <div ng-switch-when="chat">
@@ -46,7 +46,7 @@
         <textarea
           rows="3"
           tabindex="1"
-          cb-focus-on-chat
+          pom-focus-on-chat
           ng-disabled="state != 'chatting'"
           ng-model="message"
           ng-keydown="sendMessage($event)"

@@ -1,4 +1,4 @@
-app.directive('cbScrollGlue', function() {
+app.directive('pomScrollGlue', function() {
   return function(scope, element) {
     var el = element[0];
     var shouldScroll = true;
@@ -23,7 +23,7 @@ app.directive('cbScrollGlue', function() {
   };
 });
 
-app.directive('cbFocusOnChat', function($timeout) {
+app.directive('pomFocusOnChat', function($timeout) {
   return function(scope, element) {
     scope.$watch('state', function(value) {
       if (value === 'chatting') {
