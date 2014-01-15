@@ -121,7 +121,6 @@ exports.connectChatter = function(socket, userID) {
 
     // Match user with partner
     convo.pickPartner(user, queue, function(partner) {
-
     user.partner = partner;
     partner.partner = user;
 
@@ -134,7 +133,6 @@ exports.connectChatter = function(socket, userID) {
     };
     user.socket.emit('matched', connectedMessage);
     partner.socket.emit('matched', connectedMessage);
-
   });
   }
 };
