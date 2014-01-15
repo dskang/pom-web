@@ -21,8 +21,16 @@ app.controller('ChatCtrl', function($scope, $window, socket, messages, dropdown)
       $window.onbeforeunload = function() {
         return 'Leaving this page will end your conversation.';
       };
+      $window.onunload = function() {
+        mixpanel.track('chat ended', {
+          quit: true,
+          messagesSent: messages.stats.sent,
+          messagesReceived: messages.stats.received
+        });
+      };
     } else {
       $window.onbeforeunload = null;
+      $window.onunload = null;
     }
   });
 
@@ -43,10 +51,12 @@ app.controller('ChatCtrl', function($scope, $window, socket, messages, dropdown)
       });
     }
     $scope.state = 'error';
+    mixpanel.track('error');
   });
 
   socket.on('connect', function() {
     $scope.state = 'connected';
+    mixpanel.track('chat joined');
   });
 
   socket.on('entrance', function(data) {
@@ -56,12 +66,15 @@ app.controller('ChatCtrl', function($scope, $window, socket, messages, dropdown)
     });
   });
 
+  var startWait;
   socket.on('waiting', function(data) {
     messages.add({
       type: 'system',
       text: data.message
     });
     $scope.state = 'waiting';
+
+    startWait = Date.now();
   });
 
   socket.on('matched', function(data) {
@@ -70,9 +83,19 @@ app.controller('ChatCtrl', function($scope, $window, socket, messages, dropdown)
       text: data.message
     });
     $scope.state = 'chatting';
+
+    if (startWait) {
+      var endWait = Date.now();
+      var waitTime = Math.floor((endWait - startWait) / 1000);
+      mixpanel.track('chat matched', function() {
+        waitTime: waitTime
+      });
+    } else {
+      mixpanel.track('chat matched');
+    }
   });
 
-  socket.on('chat', function(data) {
+  socket.on('chat message', function(data) {
     messages.add({
       type: 'chat',
       isPartner: data.name !== 'You',
@@ -97,12 +120,18 @@ app.controller('ChatCtrl', function($scope, $window, socket, messages, dropdown)
     });
   });
 
-  socket.on('exit', function(data) {
+  socket.on('finished', function(data) {
     messages.add({
       type: 'warning',
       text: data.message
     });
     $scope.state = 'finished';
+
+    mixpanel.track('chat ended', {
+      quit: false,
+      messagesSent: messages.stats.sent,
+      messagesReceived: messages.stats.received
+    });
   });
 
   socket.on('disconnect', function() {
@@ -113,13 +142,14 @@ app.controller('ChatCtrl', function($scope, $window, socket, messages, dropdown)
       });
     }
     $scope.state = 'disconnected';
+    mixpanel.track('disconnected');
   });
 
   $scope.sendMessage = function(e) {
     if (e.keyCode == 13 && !e.shiftKey) {
       e.preventDefault();
       if ($scope.message.length > 0) {
-        socket.emit('chat', {
+        socket.emit('chat message', {
           message: $scope.message
         });
         $scope.message = '';

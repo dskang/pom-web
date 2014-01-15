@@ -73,6 +73,9 @@ app.factory('dropdown', function($rootScope, socket, messages) {
         name: response.name,
         link: response.link
       });
+      mixpanel.register({
+        gender: response.gender
+      });
     });
     $rootScope.$apply(function() {
       messages.add({
@@ -80,6 +83,7 @@ app.factory('dropdown', function($rootScope, socket, messages) {
         text: 'Identities will be revealed when both parties have opted to remove anonymization.'
       });
     });
+    mixpanel.track('identity revealed');
   };
 
   // Verify that the Facebook account seems legitimate
@@ -94,6 +98,7 @@ app.factory('dropdown', function($rootScope, socket, messages) {
             text: 'Unable to remove anonymization: Your Facebook account does not appear to be legitimate.'
           });
         });
+        mixpanel.track('facebook fake');
       }
     });
   };
@@ -105,6 +110,7 @@ app.factory('dropdown', function($rootScope, socket, messages) {
       if (response.status === 'connected') {
         verifyIdentity();
       } else {
+        mixpanel.track('facebook prompt');
         FB.login(function(response) {
           if (response.authResponse) {
             verifyIdentity();
@@ -113,6 +119,7 @@ app.factory('dropdown', function($rootScope, socket, messages) {
               showDropdown = true;
               selfRevealed = false;
             });
+            mixpanel.track('facebook cancelled');
           }
         });
       }
@@ -123,6 +130,7 @@ app.factory('dropdown', function($rootScope, socket, messages) {
     show: function() {
       if (!dropdownShown) {
         socket.emit('dropdown displayed');
+        mixpanel.track('dropdown displayed');
       }
       showDropdown = true;
       dropdownShown = true;
@@ -142,6 +150,7 @@ app.factory('dropdown', function($rootScope, socket, messages) {
     accept: function() {
       showDropdown = false;
       revealIdentity();
+      mixpanel.track('dropdown accepted');
     }
   };
 });

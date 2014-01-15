@@ -23,24 +23,24 @@ function User(socket, userID) {
       convo.save(user.conversation);
 
       var userName = user.conversation.revealed ? user.name : 'Anonymous Tiger';
-      user.partner.socket.emit('exit', {
+      user.partner.socket.emit('finished', {
         message: userName + ' has disconnected. Refresh the page to start another chat!'
       });
       user.partner.socket.disconnect();
     }
   });
 
-  this.socket.on('chat', function(data) {
+  this.socket.on('chat message', function(data) {
     if (!user.conversation) return;
 
     user.messagesSent++;
-    user.socket.emit('chat', {
+    user.socket.emit('chat message', {
       name: 'You',
       message: data.message
     });
 
     var userName = user.conversation.revealed ? user.name : 'Anonymous Tiger';
-    user.partner.socket.emit('chat', {
+    user.partner.socket.emit('chat message', {
       name: userName,
       message: data.message
     });
