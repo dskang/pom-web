@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html ng-app="pom">
-  <head>
-    <title>Tigers Anonymous</title>
+  <head ng-controller="TitleCtrl">
+    <title ng-bind="getTitle()">Tigers Anonymous</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="css/style.css" rel="stylesheet" type="text/css" media="all">
   </head>

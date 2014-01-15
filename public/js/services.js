@@ -23,3 +23,30 @@ app.factory('socket', function ($rootScope) {
     }
   };
 });
+
+app.factory('messages', function($rootScope, $window) {
+  var messages = [];
+  var numUnread = 0;
+
+  $window.onfocus = function() {
+    $rootScope.$apply(function() {
+      numUnread = 0;
+    });
+  };
+
+  return {
+    add: function(msg) {
+      messages.push(msg);
+
+      if (!$window.document.hasFocus()) {
+        numUnread++;
+      }
+    },
+    get: function() {
+      return messages;
+    },
+    numUnread: function() {
+      return numUnread;
+    }
+  };
+});

@@ -1,6 +1,18 @@
-app.controller('ChatCtrl', function($scope, $window, socket) {
+app.controller('TitleCtrl', function($scope, $window, messages) {
+  var originalTitle = $window.document.title;
+  $scope.getTitle = function() {
+    var title = originalTitle;
+    var numUnread = messages.numUnread();
+    if (numUnread > 0) {
+      title = '(' + numUnread + ') ' + title;
+    }
+    return title;
+  };
+});
+
+app.controller('ChatCtrl', function($scope, $window, socket, messages) {
   $scope.partnerName = 'Anonymous Tiger';
-  $scope.messages = [];
+  $scope.messages = messages.get();
   $scope.state = null;
   $scope.showDropdown = false;
   $scope.dropdownShown = false;
@@ -28,7 +40,7 @@ app.controller('ChatCtrl', function($scope, $window, socket) {
         });
       });
       $scope.$apply(function() {
-        $scope.messages.push({
+        messages.add({
           type: 'system',
           text: 'Identities will be revealed when both parties have opted to remove anonymization.'
         });
@@ -42,7 +54,7 @@ app.controller('ChatCtrl', function($scope, $window, socket) {
           sendIdentity();
         } else {
           $scope.$apply(function() {
-            $scope.messages.push({
+            messages.add({
               type: 'warning',
               text: 'Unable to remove anonymization: Your Facebook account does not appear to be legitimate.'
             });
@@ -85,7 +97,7 @@ app.controller('ChatCtrl', function($scope, $window, socket) {
       "4. You have a working Internet connection."
     ];
     for (var i = 0; i < messages.length; i++) {
-      $scope.messages.push({
+      messages.add({
         type: 'warning',
         text: messages[i]
       });
@@ -98,14 +110,14 @@ app.controller('ChatCtrl', function($scope, $window, socket) {
   });
 
   socket.on('entrance', function(data) {
-    $scope.messages.push({
+    messages.add({
       type: 'system',
       text: data.message
     });
   });
 
   socket.on('waiting', function(data) {
-    $scope.messages.push({
+    messages.add({
       type: 'system',
       text: data.message
     });
@@ -113,7 +125,7 @@ app.controller('ChatCtrl', function($scope, $window, socket) {
   });
 
   socket.on('matched', function(data) {
-    $scope.messages.push({
+    messages.add({
       type: 'system',
       text: data.message
     });
@@ -121,7 +133,7 @@ app.controller('ChatCtrl', function($scope, $window, socket) {
   });
 
   socket.on('chat', function(data) {
-    $scope.messages.push({
+    messages.add({
       type: 'chat',
       isPartner: data.name !== 'You',
       name: data.name,
@@ -146,7 +158,7 @@ app.controller('ChatCtrl', function($scope, $window, socket) {
 
   socket.on('reveal', function(data) {
     $scope.partnerName = data.name;
-    $scope.messages.push({
+    messages.add({
       type: 'reveal',
       partnerName: data.name,
       partnerLink: data.link
@@ -154,7 +166,7 @@ app.controller('ChatCtrl', function($scope, $window, socket) {
   });
 
   socket.on('exit', function(data) {
-    $scope.messages.push({
+    messages.add({
       type: 'warning',
       text: data.message
     });
@@ -163,7 +175,7 @@ app.controller('ChatCtrl', function($scope, $window, socket) {
 
   socket.on('disconnect', function() {
     if ($scope.state !== 'finished') {
-      $scope.messages.push({
+      messages.add({
         type: 'warning',
         text: 'You have been disconnected.'
       });
