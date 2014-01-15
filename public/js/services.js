@@ -26,27 +26,37 @@ app.factory('socket', function ($rootScope) {
 
 app.factory('messages', function($rootScope, $window) {
   var messages = [];
-  var numUnread = 0;
+  var stats = {
+    unread: 0,
+    sent: 0,
+    received: 0
+  };
 
   $window.onfocus = function() {
     $rootScope.$apply(function() {
-      numUnread = 0;
+      stats.unread = 0;
     });
   };
 
   return {
-    add: function(msg) {
-      messages.push(msg);
+    add: function(message) {
+      messages.push(message);
 
-      if (!$window.document.hasFocus()) {
-        numUnread++;
+      if (message.type === 'chat') {
+        if (message.name === 'You') {
+          stats.sent++;
+        } else {
+          stats.received++;
+        }
+
+        if (!$window.document.hasFocus()) {
+          stats.unread++;
+        }
       }
     },
     get: function() {
       return messages;
     },
-    numUnread: function() {
-      return numUnread;
-    }
+    stats: stats
   };
 });

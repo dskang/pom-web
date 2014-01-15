@@ -2,7 +2,7 @@ app.controller('TitleCtrl', function($scope, $window, messages) {
   var originalTitle = $window.document.title;
   $scope.getTitle = function() {
     var title = originalTitle;
-    var numUnread = messages.numUnread();
+    var numUnread = messages.stats.unread;
     if (numUnread > 0) {
       title = '(' + numUnread + ') ' + title;
     }
@@ -81,25 +81,20 @@ app.controller('ChatCtrl', function($scope, $window, socket, messages) {
     });
   };
 
-  var messagesSent = {
-    user: 0,
-    partner: 0
-  };
-
   socket.on('error', function() {
     // socket.io currently doesn't pass in custom error message
     // https://github.com/LearnBoost/socket.io/issues/545
-    var messages = [
+    var msgs = [
       "Unable to connect. Please ensure the following:",
       "1. You are using a computer connected to Princeton's network.",
       "2. You are not already chatting with a user.",
       "3. You are using a modern web browser that supports WebSockets.",
       "4. You have a working Internet connection."
     ];
-    for (var i = 0; i < messages.length; i++) {
+    for (var i = 0; i < msgs.length; i++) {
       messages.add({
         type: 'warning',
-        text: messages[i]
+        text: msgs[i]
       });
     }
     $scope.state = 'error';
@@ -140,16 +135,10 @@ app.controller('ChatCtrl', function($scope, $window, socket, messages) {
       text: data.message
     });
 
-    if (data.name === 'You') {
-      messagesSent.user++;
-    } else {
-      messagesSent.partner++;
-    }
-
     var threshold = 5; // FIXME
     if (!$scope.dropdownShown &&
-        messagesSent.user >= threshold &&
-        messagesSent.partner >= threshold) {
+        messages.stats.sent >= threshold &&
+        messages.stats.received >= threshold) {
       $scope.showDropdown = true;
       $scope.dropdownShown = true;
       socket.emit('dropdown displayed');
