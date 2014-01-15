@@ -10,13 +10,11 @@ app.controller('TitleCtrl', function($scope, $window, messages) {
   };
 });
 
-app.controller('ChatCtrl', function($scope, $window, socket, messages) {
+app.controller('ChatCtrl', function($scope, $window, socket, messages, dropdown) {
   $scope.partnerName = 'Anonymous Tiger';
   $scope.messages = messages.get();
   $scope.state = null;
-  $scope.showDropdown = false;
-  $scope.dropdownShown = false;
-  $scope.selfRevealed = false;
+  $scope.dropdown = dropdown;
 
   $scope.$watch('state', function(value) {
     if (value === 'chatting') {
@@ -27,59 +25,6 @@ app.controller('ChatCtrl', function($scope, $window, socket, messages) {
       $window.onbeforeunload = null;
     }
   });
-
-  $scope.revealIdentity = function() {
-    $scope.showDropdown = false;
-    $scope.selfRevealed = true;
-
-    var sendIdentity = function() {
-      FB.api('/me', function(response) {
-        socket.emit('identity', {
-          name: response.name,
-          link: response.link
-        });
-      });
-      $scope.$apply(function() {
-        messages.add({
-          type: 'system',
-          text: 'Identities will be revealed when both parties have opted to remove anonymization.'
-        });
-      });
-    };
-
-    // Verify that the Facebook account seems legitimate
-    var verifyIdentity = function() {
-      FB.api('/me/friends?limit=100', function(response) {
-        if (response.data.length === 100) {
-          sendIdentity();
-        } else {
-          $scope.$apply(function() {
-            messages.add({
-              type: 'warning',
-              text: 'Unable to remove anonymization: Your Facebook account does not appear to be legitimate.'
-            });
-          });
-        }
-      });
-    };
-
-    FB.getLoginStatus(function(response) {
-      if (response.status === 'connected') {
-        verifyIdentity();
-      } else {
-        FB.login(function(response) {
-          if (response.authResponse) {
-            verifyIdentity();
-          } else {
-            $scope.$apply(function() {
-              $scope.showDropdown = true;
-              $scope.selfRevealed = false;
-            });
-          }
-        });
-      }
-    });
-  };
 
   socket.on('error', function() {
     // socket.io currently doesn't pass in custom error message
@@ -136,12 +81,10 @@ app.controller('ChatCtrl', function($scope, $window, socket, messages) {
     });
 
     var threshold = 5; // FIXME
-    if (!$scope.dropdownShown &&
+    if (!dropdown.previouslyShown() &&
         messages.stats.sent >= threshold &&
         messages.stats.received >= threshold) {
-      $scope.showDropdown = true;
-      $scope.dropdownShown = true;
-      socket.emit('dropdown displayed');
+      dropdown.show();
     }
   });
 
