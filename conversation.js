@@ -1,5 +1,6 @@
 var mongoose = require('mongoose')
 , Schema = mongoose.Schema;
+var heuristics = require('./heuristics.js');
 
 /******************************************************************************
 * Initialize mongoDB database schema and model
@@ -21,6 +22,7 @@ var conversationSchema = new Schema({
 
 // Compile schema into mongoDB model object, which can be used to manipulate 
 // the set of Conversation documents below.
+
 var Conversation = mongoose.model('Conversation', conversationSchema);
 
 /******************************************************************************
@@ -43,16 +45,22 @@ exports.save = function(conversation) {
     user1MessagesSent: user1.messagesSent,
     user2MessagesSent: user2.messagesSent
   }).save();
+
+  console.log("---------------CURRENT DATABASE----------------");
+  Conversation.find(function(err, data) {
+    console.log(data);
+  })
 };
 
  // Given a current user and a queue of potential matches, implement
  // the UCB1 algorithm with a pre-defined set of heuristics as the 
  // bandit-arms. See write-up for more details.
  exports.pickPartner = function (user, queue, partnerCallback) {
-
-  pickHeuristic(user, queue, partnerCallback, function(chosenHeuristic) {
+  heuristics.pick(Conversation, user, queue, partnerCallback, function(chosenHeuristic) {
+    console.log("****************************************");
+    console.log("CHOSEN HEURISTIC IS " + chosenHeuristic);
+    console.log("****************************************");
     user.conversation.matchingHeuristic = chosenHeuristic;
-    heuristicFunctions[chosenHeuristic](user, queue, partnerCallback);
+    heuristics.execute(Conversation, user, queue, partnerCallback, heuristics[chosenHeuristic]);
   });
-
-}
+};

@@ -21,7 +21,6 @@ app.configure('production', function() {
 });
 mongoose.connect(mongoUrl);
 
-
 app.use(express.cookieParser());
 
 app.get('/chat', function(req, res) {
