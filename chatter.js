@@ -32,10 +32,9 @@ function User(socket, userID) {
   this.socket.on('chat message', function(data) {
     if (!user.conversation) return;
 
-    var pseudonym = user.conversation.user1 === user ? 'Origin' : 'Black';
     user.conversation.chatLog.push({
       date: new Date(),
-      user: pseudonym,
+      user: user.pseudonym,
       text: data.message
     });
 
@@ -62,10 +61,11 @@ function User(socket, userID) {
     if (!user.conversation) return;
 
     user.conversation.chatLog.push({
-      date: new Date(), 
-      user: "",
-      message: "*** Facebook Identities Revealed ***"
+      date: new Date(),
+      user: '',
+      text: '*** ' + user.pseudonym + ' accepted dropdown ***'
     });
+
     user.name = data.name;
     user.fbLink = data.link;
     user.buttonClicked = true;
@@ -80,6 +80,12 @@ function User(socket, userID) {
         link: user.fbLink
       });
       user.conversation.revealed = true;
+
+      user.conversation.chatLog.push({
+        date: new Date(),
+        user: '',
+        text: '*** Facebook identities revealed ***'
+      });
     }
   });
 
@@ -162,6 +168,7 @@ exports.connectChatter = function(socket, userID) {
     var conversation = new ConversationWrapper();
     conversation.user1 = user;
     user.conversation = conversation;
+    user.pseudonym = 'Black';
 
     // Match user with partner
     pickPartner(user, queue, function(partner) {
@@ -172,6 +179,7 @@ exports.connectChatter = function(socket, userID) {
 
       conversation.user2 = partner;
       partner.conversation = conversation;
+      partner.pseudonym = 'Origin';
 
       // Notify users that they are connected
       var connectedMessage = {
