@@ -13,7 +13,6 @@ var UCB1 = function(mongoData, heuristicCallback) {
   // if there is no data, set all heuristics to a large positive number
   if (typeof(mongoData) === "undefined") {
     for (var i = 0; i < heuristicList.length; i++) {
-      console.log(heuristicList[i]);
       finalData[heuristicList[i]] = largePositiveNumber;
     }
   } else {
