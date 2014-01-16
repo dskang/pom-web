@@ -1,13 +1,15 @@
 {
   "name": "tigersanonymous",
   "version": "0.0.1",
+  "engines": {
+    "node": "0.10.x"
+  },
   "dependencies": {
-    "socket.io": "*",
-    "express": "*",
-    "range_check": "*",
-    "mongoose": "*",
-    "crypto": "*", 
-    "nodemailer": "*"
+    "socket.io": "~0.9.16",
+    "express": "~3.1.0",
+    "range_check": "~0.0.4",
+    "mongoose": "~3.8.3",
+    "nodemailer": "~0.6.0"
   },
   "author": "Origin Black"
 }
