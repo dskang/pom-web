@@ -33,11 +33,11 @@ function User(socket, userID) {
     if (!user.conversation) return;
 
     var pseudonym = (user.conversation.user1 === user ? 'Origin' : 'Black') + ": ";
-    var chatHead = (user.conversation.revealed ? user.name : pseudonym);
+    var chatHead = (user.conversation.revealed ? user.name + ": " : pseudonym);
     var d = new Date();
     var timeStamp = "[" + (d.getMonth() + 1) + "/" + (d.getDate()) + "/" + 
-      (d.getFullYear()).toString().substring(2, 4) + " " + (d.getHours()) + ":" +
-      (d.getMinutes()) + ":" + d.getSeconds() + "] ";
+      (d.getFullYear()).toString().substring(2, 4) + " " + (d.getHours()) + ":" + (d.getMinutes()) + 
+      ":" + (d.getSeconds() < 10 ? "0" + d.getSeconds() : d.getSeconds()) + "] ";
     var messageLog = timeStamp + chatHead + data.message + "\n";
     user.conversation.chatLog += messageLog;
 
