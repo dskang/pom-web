@@ -18,7 +18,7 @@ function User(socket, userID) {
     if (!user.conversation) return;
 
     if (!user.conversation.endTime) {
-      user.conversation.endTime = Date.now();
+      user.conversation.endTime = new Date();
       user.conversation.save();
 
       var userName = user.conversation.revealed ? user.name : 'Anonymous Tiger';
@@ -32,14 +32,12 @@ function User(socket, userID) {
   this.socket.on('chat message', function(data) {
     if (!user.conversation) return;
 
-    var pseudonym = (user.conversation.user1 === user ? 'Origin' : 'Black') + ": ";
-    var chatHead = (user.conversation.revealed ? user.name + ": " : pseudonym);
-    var d = new Date();
-    var timeStamp = "[" + (d.getMonth() + 1) + "/" + (d.getDate()) + "/" + 
-      (d.getFullYear()).toString().substring(2, 4) + " " + (d.getHours()) + ":" + (d.getMinutes()) + 
-      ":" + (d.getSeconds() < 10 ? "0" + d.getSeconds() : d.getSeconds()) + "] ";
-    var messageLog = timeStamp + chatHead + data.message + "\n";
-    user.conversation.chatLog += messageLog;
+    var pseudonym = user.conversation.user1 === user ? 'Origin' : 'Black';
+    user.conversation.chatLog.push({
+      date: new Date(),
+      user: pseudonym,
+      text: data.message
+    });
 
     user.messagesSent++;
     user.socket.emit('chat message', {
@@ -96,12 +94,12 @@ function User(socket, userID) {
 function ConversationWrapper() {
     this.user1 = null;
     this.user2 = null;
-    this.startTime = Date.now();
+    this.startTime = new Date();
     this.endTime = null;
     this.matchingHeuristic = null;
     this.buttonDisplayed = false;
     this.revealed = false;
-    this.chatLog = "";
+    this.chatLog = [];
 
     var self = this;
     this.save = function() {
