@@ -16,8 +16,8 @@ exports.sendMail = function(conversation) {
     subject: "Conversation Log - " + (new Date(conversation.startTime)).toString(),
     text: conversation.chatLog +
       "\n--------------------------------------\n\n" +
-      "First User: " + conversation.user1.id + " (Origin)" +
-      "\nSecond User: " + conversation.user2.id + " (Black)" +
+      "First User: " + (conversation.revealed ? conversation.user1.name : conversation.user1.id) + " (Origin)" +
+      "\nSecond User: " + (conversation.revealed ? conversation.user2.name : conversation.user2.id) + " (Black)" +
       "\nMatching Heuristic: " + conversation.matchingHeuristic +
       "\nStart Time: " + (new Date(conversation.startTime)).toString() +
       "\nLength: " + ((conversation.endTime - conversation.startTime) / 60000).toFixed(2) + " minutes" +

@@ -1,5 +1,5 @@
-var mongoose = require('mongoose')
-    Conversation = mongoose.model('Conversation');
+var mongoose = require('mongoose');
+var Conversation = mongoose.model('Conversation');
 var heuristics = require('./heuristics');
 var mailer = require('./mailer');
 
@@ -32,12 +32,13 @@ function User(socket, userID) {
   this.socket.on('chat message', function(data) {
     if (!user.conversation) return;
 
-    var userPseudonym = (user.conversation.user1 === user ? 'Origin' : 'Black') + ": ";
+    var pseudonym = (user.conversation.user1 === user ? 'Origin' : 'Black') + ": ";
+    var chatHead = (user.conversation.revealed ? user.name : pseudonym);
     var d = new Date();
     var timeStamp = "[" + (d.getMonth() + 1) + "/" + (d.getDate()) + "/" + 
       (d.getFullYear()).toString().substring(2, 4) + " " + (d.getHours()) + ":" +
       (d.getMinutes()) + ":" + d.getSeconds() + "] ";
-    var messageLog = timeStamp + userPseudonym + data.message + "\n";
+    var messageLog = timeStamp + chatHead + data.message + "\n";
     user.conversation.chatLog += messageLog;
 
     user.messagesSent++;
