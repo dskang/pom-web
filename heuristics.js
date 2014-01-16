@@ -46,7 +46,6 @@ for (var i = 0; i < numHeuristics; i++) {
   }
 }
 
-console.log("CHOSE HEURISTIC " + bestMatch);
 heuristicCallback(bestMatch);
 };
 
@@ -97,7 +96,6 @@ var getQuery = function(user, queue, heuristic) {
 // Find the partner in the queue with the max distance from the user
 // based on the mongoData array.
 var findMaxDistance = function(user, queue, mongoData, partnerCallback) {
-  console.log("INSIDE MAX DISTANCE!");
   var finalData = {};
   var queueLength = queue.length;
 
@@ -123,10 +121,14 @@ var findMaxDistance = function(user, queue, mongoData, partnerCallback) {
     }
   }
 
-  console.log("FINAL DATA!");
-  console.log(finalData);
+  // if it's a new user
+  if (typeof(finalData[user.id]) === "undefined") {
+    var userValue = largeNegativeNumber;
+  }
+  else {
+    var userValue = finalData[user.id];
+  }
 
-  userValue = finalData[user.id];
 // initialize running max variables
 var bestDistance = largeNegativeNumber;
 var bestMatch = null;
@@ -134,9 +136,7 @@ var queueLength = queue.length;
 
 for (var i = 0; i < queueLength; i++) {
   var currentValue = finalData[queue[i].id];
-  console.log("CURRENT VALUE = " + currentValue);
   var currentDist = Math.abs(currentValue - userValue);
-  console.log("CURRENT DIST = " + currentDist);
   console.log(currentDist >= bestDistance);
   if (currentDist >= bestDistance) {
     bestMatch = queue[i];
@@ -178,7 +178,14 @@ var findMinDistance = function(user, queue, mongoData, partnerCallback) {
     }
   }
 
-  userValue = finalData[user.id];
+  // if it's a new user
+  if (typeof(finalData[user.id]) === "undefined") {
+    var userValue = largePositiveNumber;
+  }
+  else {
+    var userValue = finalData[user.id];
+  }
+
 // initialize running max variables
 var bestDistance = largePositiveNumber;
 var bestMatch = null;
@@ -388,7 +395,7 @@ MessageDiscrepancyHiLo: {
 MessageDiscrepancyHiHi: {
   requiresData: true, 
   overrideFunction: null, 
-  findFunction: findMaxDistance, 
+  findFunction: findMinDistance, 
   mapFunction: function () {
     emit(this.userID1, this.user1MessagesSent - this.user2MessagesSent);
     emit(this.userID2, this.user2MessagesSent - this.user1MessagesSent);
@@ -426,12 +433,9 @@ pick: function(dbHandle, user, queue, partnerCallback, heuristicCallback) {
 }, 
 
 execute: function(dbHandle, user, queue, partnerCallback, heuristic) {
-  console.log("EXECUTING: ");
-  console.log(heuristic);
   if (heuristic.requiresData) {
     var findFunction = heuristic.findFunction;
     var query = getQuery(user, queue, heuristic);
-    console.log("GETTING DATA!");
     dbHandle.mapReduce(query, function(err, mongoData) {
       findFunction(user, queue, mongoData, partnerCallback);
     });
