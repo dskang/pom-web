@@ -99,7 +99,7 @@ var getQuery = function(user, queue, heuristic) {
 // Find the partner in the queue with the max distance from the user
 // based on the mongoData array.
 var findMaxDistance = function(user, queue, mongoData, partnerCallback) {
-  console.log("Finding max distance between user and queue for the heuristic");
+  console.log("Finding max distance between user and queue for the heuristic.");
   var finalData = {};
   var queueLength = queue.length;
 
@@ -141,7 +141,6 @@ var queueLength = queue.length;
 for (var i = 0; i < queueLength; i++) {
   var currentValue = finalData[queue[i].id];
   var currentDist = Math.abs(currentValue - userValue);
-  console.log(currentDist >= bestDistance);
   if (currentDist >= bestDistance) {
     bestMatch = queue[i];
     bestDistance = currentDist;
@@ -156,7 +155,6 @@ partnerCallback(bestMatch);
 // Find the partner in the queue with the min distance from the user
 // based on the mongoData array.
 var findMinDistance = function(user, queue, mongoData, partnerCallback) {
-
 console.log("Finding min distance between user and queue for the heuristic");
 
   var finalData = {};
