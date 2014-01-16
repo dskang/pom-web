@@ -118,6 +118,7 @@ app.controller('ChatCtrl', function($scope, $window, socket, messages, dropdown)
       partnerName: data.name,
       partnerLink: data.link
     });
+    mixpanel.track('partner revealed');
   });
 
   socket.on('finished', function(data) {

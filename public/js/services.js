@@ -83,7 +83,7 @@ app.factory('dropdown', function($rootScope, socket, messages) {
         text: 'Identities will be revealed when both parties have opted to remove anonymization.'
       });
     });
-    mixpanel.track('identity revealed');
+    mixpanel.track('self revealed');
   };
 
   // Verify that the Facebook account seems legitimate
