@@ -2,9 +2,6 @@
 * Implement UCB1 function
 ******************************************************************************/
 
-var largePositiveNumber = 1000000000;
-var largeNegativeNumber = -1000000000;
-
 var UCB1 = function(mongoData, heuristicCallback) {
   var heuristicList = module.exports.list;
   var finalData = {};
@@ -12,7 +9,7 @@ var UCB1 = function(mongoData, heuristicCallback) {
 
   if (typeof(mongoData) === "undefined") {
     for (var i = 0; i < numHeuristics; i++) {
-      finalData.heuristicList[i] = largePositiveNumber;
+      finalData.heuristicList[i] = Number.MAX_VALUE;
     }
   }
   else {
@@ -23,20 +20,20 @@ var UCB1 = function(mongoData, heuristicCallback) {
     }
     for (var i = 0; i < numHeuristics; i++) {
       if (typeof(mongoLookup[heuristicList[i]]) === "undefined") {
-         finalData[heuristicList[i]] = largePositiveNumber;
-      }
-      else {
-        // calculate UCB value for finalData
-        var probabilityEstimate = mongoLookup[heuristicList[i]].wins/mongoLookup[heuristicList[i]].plays;
-        var UCBoundEstimate = Math.sqrt(2*Math.log(mongoLookup["AllHeuristics"].plays)/mongoLookup[heuristicList[i]].plays);
-        finalData[heuristicList[i]] = probabilityEstimate + UCBoundEstimate;
-      }
+       finalData[heuristicList[i]] = Number.MAX_VALUE;
+     }
+     else {
+      // calculate UCB value for the current heuristic
+      var probabilityEstimate = mongoLookup[heuristicList[i]].wins/mongoLookup[heuristicList[i]].plays;
+      var UCBoundEstimate = Math.sqrt(2*Math.log(mongoLookup["AllHeuristics"].plays)/mongoLookup[heuristicList[i]].plays);
+      finalData[heuristicList[i]] = probabilityEstimate + UCBoundEstimate;
     }
   }
+}
 
-  // initialize running max variables
-  var bestValue = largeNegativeNumber;
-  var bestMatch = null;
+// initialize running max variables
+var bestValue = Number.MIN_VALUE;
+var bestMatch = null;
 
 for (var i = 0; i < numHeuristics; i++) {
   var currentValue = finalData[heuristicList[i]];
@@ -46,55 +43,62 @@ for (var i = 0; i < numHeuristics; i++) {
   }
 }
 
-  heuristicCallback(bestMatch);
+heuristicCallback(bestMatch);
 };
 
+/******************************************************************************
+* Implement helper functions
+******************************************************************************/
+
+// Function to get the mongoose map-reduce query given the heuristic object
 var getQuery = function(user, queue, heuristic) {
 
-    var mapReduce = {};
-    
-    // map function provided by user
-    mapReduce.map = heuristic.mapFunction;
+  var mapReduce = {};
+  
+  // map function provided by user
+  mapReduce.map = heuristic.mapFunction;
 
-    // take the average value of the computed values from the
-    // map function
-      mapReduce.reduce = function(k, v) {
-      var sum = 0.0;
-      var length = v.length;
+  // take the average value of the computed values from the
+  // map function
+  mapReduce.reduce = function(k, v) {
+    var sum = 0.0;
+    var length = v.length;
 
-      for (var i = 0; i < length; i++) {
-        if (typeof(v[i]) === "boolean") {
-          if (v[i]) {
-            sum++;
-          }
-        }
-        else {
-          sum += v[i];
+    for (var i = 0; i < length; i++) {
+      if (typeof(v[i]) === "boolean") {
+        if (v[i]) {
+          sum++;
         }
       }
-
-      return (sum/length); 
+      else {
+        sum += v[i];
+      }
     }
 
-    // filter to only user and potential partners in the queue
-    orQuery = [{userID1: user.id}, {userID2: user.id}];
-    var length = queue.length;
-    for (var i = 0; i < length; i++) {
-      orQuery.push({userID1: queue[i].id});
-      orQuery.push({userID2: queue[i].id});
-    }
-    mapReduce.query = {$or: orQuery};
+    return (sum/length); 
+  }
 
-    return mapReduce;
-  };
+  // filter to only user and potential partners in the queue
+  orQuery = [{userID1: user.id}, {userID2: user.id}];
+  var length = queue.length;
+  for (var i = 0; i < length; i++) {
+    orQuery.push({userID1: queue[i].id});
+    orQuery.push({userID2: queue[i].id});
+  }
+  mapReduce.query = {$or: orQuery};
 
+  return mapReduce;
+};
+
+// Find the partner in the queue with the max distance from the user
+// based on the mongoData array.
 var findMaxDistance = function(user, queue, mongoData, partnerCallback) {
   var finalData = {};
   var queueLength = queue.length;
 
   if (typeof(mongoData) === "undefined") {
     for (var i = 0; i < queueLength; i++) {
-      finalData[queue[i].id] = largeNegativeNumber;
+      finalData[queue[i].id] = Number.MIN_VALUE;
     }
   }
   else {
@@ -106,7 +110,7 @@ var findMaxDistance = function(user, queue, mongoData, partnerCallback) {
 
     for (var i = 0; i < queueLength; i++) {
       if (typeof(mongoLookup[queue[i].id]) === "undefined") {
-        finalData[queue[i].id] = largeNegativeNumber;
+        finalData[queue[i].id] = Number.MIN_VALUE;
       }
       else {
         finalData[queue[i].id] = mongoLookup[queue[i].id];
@@ -115,10 +119,10 @@ var findMaxDistance = function(user, queue, mongoData, partnerCallback) {
   }
 
   userValue = finalData[user.id];
-  // initialize running max variables
-  var bestDistance = largeNegativeNumber;
-  var bestMatch = null;
-  var queueLength = queue.length;
+// initialize running max variables
+var bestDistance = Number.MIN_VALUE;
+var bestMatch = null;
+var queueLength = queue.length;
 
 for (var i = 0; i < queueLength; i++) {
   var currentValue = finalData[queue[i].id];
@@ -134,6 +138,8 @@ partnerCallback(bestMatch);
 
 };
 
+// Find the partner in the queue with the min distance from the user
+// based on the mongoData array.
 var findMinDistance = function(user, queue, mongoData, partnerCallback) {
 
   var finalData = {};
@@ -141,7 +147,7 @@ var findMinDistance = function(user, queue, mongoData, partnerCallback) {
 
   if (typeof(mongoData) === "undefined") {
     for (var i = 0; i < queueLength; i++) {
-      finalData[queue[i].id] = largePositiveNumber;
+      finalData[queue[i].id] = Number.MAX_VALUE;
     }
   }
   else {
@@ -153,7 +159,7 @@ var findMinDistance = function(user, queue, mongoData, partnerCallback) {
 
     for (var i = 0; i < queueLength; i++) {
       if (typeof(mongoLookup[queue[i].id]) === "undefined") {
-        finalData[queue[i].id] = largePositiveNumber;
+        finalData[queue[i].id] = Number.MAX_VALUE;
       }
       else {
         finalData[queue[i].id] = mongoLookup[queue[i].id];
@@ -162,10 +168,10 @@ var findMinDistance = function(user, queue, mongoData, partnerCallback) {
   }
 
   userValue = finalData[user.id];
-  // initialize running max variables
-  var bestDistance = largePositiveNumber;
-  var bestMatch = null;
-  var queueLength = queue.length;
+// initialize running max variables
+var bestDistance = Number.MAX_VALUE;
+var bestMatch = null;
+var queueLength = queue.length;
 
 for (var i = 0; i < queueLength; i++) {
   var currentValue = finalData[queue[i].id];
@@ -181,6 +187,13 @@ partnerCallback(bestMatch);
 
 };
 
+
+/******************************************************************************
+* Heuristics to be used to match users, as well as public functions to 
+* use the UCB1 algorithm to pick the heuristic and implement a given heuristic
+* to pair two users for conversation.
+******************************************************************************/
+
 module.exports = {
   list: ["FIFO", "LIFO", "Random", "ChatLengthHiLo", "ChatLengthHiHi", 
   "LastVisitHiLo", "LastVisitHiHi", "ClickProbHiLo", "ClickProbHiHi", 
@@ -190,7 +203,6 @@ module.exports = {
 
   FIFO: {
     requiresData: false,
-    usesDates: false, 
     overrideFunction: function(user, queue, partnerCallback) {
       partnerCallback(queue.shift());
     },
@@ -200,7 +212,6 @@ module.exports = {
 
   LIFO: {
     requiresData: false, 
-    usesDates: false,
     overrideFunction: function(user, queue, partnerCallback) {
       partnerCallback(queue.pop());
     }, 
@@ -210,187 +221,172 @@ module.exports = {
 
   Random: {
     requiresData: false,
-    usesDates: false,
     overrideFunction: function(user, queue, partnerCallback) {
       var randomIndex = Math.floor(Math.random()*queue.length);
       var randomUser = queue[randomIndex];
-      queue.splice(randomIndex, 1); // remove randomUser from queue
-      partnerCallback(randomUser);
-      },
-    findFunction: null,
-    mapFunction: null
-  }, 
-
-  ChatLengthHiLo: {
-    requiresData: true,
-    usesDates: true,
-    overrideFunction: null,
-    findFunction: findMaxDistance,
-    mapFunction: function() {
-      var endTime = new Date(this.endTime);
-      var startTime = new Date(this.endTime);
-
-      emit(this.userID1, endTime.getTime() - startTime.getTime());
-      emit(this.userID2, endTime.getTime() - startTime.getTime());
-    }
-  }, 
-
-  ChatLengthHiHi: {
-    requiresData: true,
-    usesDates: true,
-    overrideFunction: null,
-    findFunction: findMinDistance,
-    mapFunction: function() {
-
-      var endTime = new Date(this.endTime);
-      var startTime = new Date(this.endTime);
-
-      emit(this.userID1, endTime.getTime() - startTime.getTime());
-      emit(this.userID2, endTime.getTime() - startTime.getTime());
-    }
-  }, 
-
-  LastVisitHiLo: {
-    requiresData: true, 
-    usesDates: true,
-    overrideFunction: null, 
-    findFunction: findMaxDistance, 
-    mapFunction: function () {
-
-      var startTime = new Date(this.endTime);
-      emit(this.userID1, startTime.getTime());
-      emit(this.userID2, startTime.getTime());
-    }
+    queue.splice(randomIndex, 1); // remove randomUser from queue
+    partnerCallback(randomUser);
   },
+  findFunction: null,
+  mapFunction: null
+}, 
 
-  LastVisitHiHi: {
-    requiresData: true,
-    usesDates: true,
-    overrideFunction: null,
-    findFunction: findMinDistance,
-    mapFunction: function () {
+ChatLengthHiLo: {
+  requiresData: true,
+  overrideFunction: null,
+  findFunction: findMaxDistance,
+  mapFunction: function() {
+    var endTime = new Date(this.endTime);
+    var startTime = new Date(this.endTime);
 
-      var startTime = new Date(this.endTime);
-      emit(this.userID1, startTime.getTime());
-      emit(this.userID2, startTime.getTime());
-    }
-  }, 
+    emit(this.userID1, endTime.getTime() - startTime.getTime());
+    emit(this.userID2, endTime.getTime() - startTime.getTime());
+  }
+}, 
 
-  ClickProbHiLo: {
-    requiresData: true, 
-    usesDates: false,
-    overrideFunction: null, 
-    findFunction: findMaxDistance, 
-    mapFunction: function() {
-      emit(this.userID1, this.user1Clicked);
-      emit(this.userID2, this.user2Clicked);
-    }
-  }, 
+ChatLengthHiHi: {
+  requiresData: true,
+  overrideFunction: null,
+  findFunction: findMinDistance,
+  mapFunction: function() {
 
-  ClickProbHiHi: {
-    requiresData: true, 
-    usesDates: false,
-    overrideFunction: null, 
-    findFunction: findMinDistance, 
-    mapFunction: function() {
-      emit(this.userID1, this.user1Clicked);
-      emit(this.userID2, this.user2Clicked);
-    }
-  }, 
+    var endTime = new Date(this.endTime);
+    var startTime = new Date(this.endTime);
 
-  MatchProbHiLo: {
-    requiresData: true, 
-    usesDates: false,
-    overrideFunction: null, 
-    findFunction: findMaxDistance, 
-    mapFunction: function() {
-      var matched = (this.user1Clicked && this.user2Clicked);
-      emit(this.userID1, matched);
-      emit(this.userID2, matched);
-    }
-  }, 
+    emit(this.userID1, endTime.getTime() - startTime.getTime());
+    emit(this.userID2, endTime.getTime() - startTime.getTime());
+  }
+}, 
 
-  MatchProbHiHi: {
-    requiresData: true,
-    usesDates: false, 
-    overrideFunction: null, 
-    findFunction: findMinDistance, 
-    mapFunction: function() {
-      var matched = (this.user1Clicked && this.user2Clicked);
-      emit(this.userID1, matched);
-      emit(this.userID2, matched);
-    }
-  }, 
+LastVisitHiLo: {
+  requiresData: true, 
+  overrideFunction: null, 
+  findFunction: findMaxDistance, 
+  mapFunction: function () {
 
-  MessagesSentHiLo: {
-    requiresData: true, 
-    usesDates: false,
-    overrideFunction: null, 
-    findFunction: findMaxDistance, 
-    mapFunction: function() {
-      emit (this.userID1, this.user1MessagesSent);
-      emit (this.userID2, this.user2MessagesSent);
-    }
-  }, 
+    var startTime = new Date(this.endTime);
+    emit(this.userID1, startTime.getTime());
+    emit(this.userID2, startTime.getTime());
+  }
+},
 
-  MessagesSentHiHi: {
-    requiresData: true,
-    usesDates: false, 
-    overrideFunction: null, 
-    findFunction: findMinDistance, 
-    mapFunction: function() {
-      emit (this.userID1, this.user1MessagesSent);
-      emit (this.userID2, this.user2MessagesSent);
-    }
-  }, 
+LastVisitHiHi: {
+  requiresData: true,
+  overrideFunction: null,
+  findFunction: findMinDistance,
+  mapFunction: function () {
 
-  MessagesReceivedHiLo: {
-    requiresData: true, 
-    usesDates: false,
-    overrideFunction: null, 
-    findFunction: findMaxDistance, 
-    mapFunction: function () {
-      emit (this.userID1, this.user2MessagesSent);
-      emit (this.userID2, this.user1MessagesSent);
-    }
-  }, 
+    var startTime = new Date(this.endTime);
+    emit(this.userID1, startTime.getTime());
+    emit(this.userID2, startTime.getTime());
+  }
+}, 
 
-  MessagesReceivedHiHi: {
-    requiresData: true, 
-    usesDates: false,
-    overrideFunction: null, 
-    findFunction: findMinDistance, 
-    mapFunction: function () {
-      emit (this.userID1, this.user2MessagesSent);
-      emit (this.userID2, this.user1MessagesSent);
-    }
-  }, 
+ClickProbHiLo: {
+  requiresData: true, 
+  overrideFunction: null, 
+  findFunction: findMaxDistance, 
+  mapFunction: function() {
+    emit(this.userID1, this.user1Clicked);
+    emit(this.userID2, this.user2Clicked);
+  }
+}, 
 
-  MessageDiscrepancyHiLo: {
-    requiresData: true, 
-    usesDates: false,
-    overrideFunction: null, 
-    findFunction: findMaxDistance, 
-    mapFunction: function () {
-      emit(this.userID1, this.user1MessagesSent - this.user2MessagesSent);
-      emit(this.userID2, this.user2MessagesSent - this.user1MessagesSent);
-    }
-  }, 
+ClickProbHiHi: {
+  requiresData: true, 
+  overrideFunction: null, 
+  findFunction: findMinDistance, 
+  mapFunction: function() {
+    emit(this.userID1, this.user1Clicked);
+    emit(this.userID2, this.user2Clicked);
+  }
+}, 
 
-  MessageDiscrepancyHiHi: {
-    requiresData: true, 
-    usesDates: false,
-    overrideFunction: null, 
-    findFunction: findMaxDistance, 
-    mapFunction: function () {
-      emit(this.userID1, this.user1MessagesSent - this.user2MessagesSent);
-      emit(this.userID2, this.user2MessagesSent - this.user1MessagesSent);
-    }
-  },   
+MatchProbHiLo: {
+  requiresData: true, 
+  overrideFunction: null, 
+  findFunction: findMaxDistance, 
+  mapFunction: function() {
+    var matched = (this.user1Clicked && this.user2Clicked);
+    emit(this.userID1, matched);
+    emit(this.userID2, matched);
+  }
+}, 
 
-  pick: function(dbHandle, user, queue, partnerCallback, heuristicCallback) {
-    var query = {};
-    query.map = function() {
+MatchProbHiHi: {
+  requiresData: true,
+  overrideFunction: null, 
+  findFunction: findMinDistance, 
+  mapFunction: function() {
+    var matched = (this.user1Clicked && this.user2Clicked);
+    emit(this.userID1, matched);
+    emit(this.userID2, matched);
+  }
+}, 
+
+MessagesSentHiLo: {
+  requiresData: true, 
+  overrideFunction: null, 
+  findFunction: findMaxDistance, 
+  mapFunction: function() {
+    emit (this.userID1, this.user1MessagesSent);
+    emit (this.userID2, this.user2MessagesSent);
+  }
+}, 
+
+MessagesSentHiHi: {
+  requiresData: true,
+  overrideFunction: null, 
+  findFunction: findMinDistance, 
+  mapFunction: function() {
+    emit (this.userID1, this.user1MessagesSent);
+    emit (this.userID2, this.user2MessagesSent);
+  }
+}, 
+
+MessagesReceivedHiLo: {
+  requiresData: true, 
+  overrideFunction: null, 
+  findFunction: findMaxDistance, 
+  mapFunction: function () {
+    emit (this.userID1, this.user2MessagesSent);
+    emit (this.userID2, this.user1MessagesSent);
+  }
+}, 
+
+MessagesReceivedHiHi: {
+  requiresData: true, 
+  overrideFunction: null, 
+  findFunction: findMinDistance, 
+  mapFunction: function () {
+    emit (this.userID1, this.user2MessagesSent);
+    emit (this.userID2, this.user1MessagesSent);
+  }
+}, 
+
+MessageDiscrepancyHiLo: {
+  requiresData: true, 
+  overrideFunction: null, 
+  findFunction: findMaxDistance, 
+  mapFunction: function () {
+    emit(this.userID1, this.user1MessagesSent - this.user2MessagesSent);
+    emit(this.userID2, this.user2MessagesSent - this.user1MessagesSent);
+  }
+}, 
+
+MessageDiscrepancyHiHi: {
+  requiresData: true, 
+  overrideFunction: null, 
+  findFunction: findMaxDistance, 
+  mapFunction: function () {
+    emit(this.userID1, this.user1MessagesSent - this.user2MessagesSent);
+    emit(this.userID2, this.user2MessagesSent - this.user1MessagesSent);
+  }
+},   
+
+pick: function(dbHandle, user, queue, partnerCallback, heuristicCallback) {
+  var query = {};
+  query.map = function() {
     if (this.user1Clicked && this.user2Clicked) {
       emit(this.matchingHeuristic, {plays:1, wins:1});
       emit("AllHeuristics", {plays: 1, wins: 1});
@@ -418,16 +414,16 @@ module.exports = {
   });
 }, 
 
-  execute: function(dbHandle, user, queue, partnerCallback, heuristic) {
-    if (heuristic.requiresData) {
-      var findFunction = heuristic.findFunction;
-      var query = getQuery(user, queue, heuristic);
-      dbHandle.mapReduce(query, function(err, mongoData) {
-        findFunction(user, queue, mongoData, partnerCallback);
-      });
-    }
-    else {
-      heuristic.overrideFunction(user, queue, partnerCallback);
-    }
+execute: function(dbHandle, user, queue, partnerCallback, heuristic) {
+  if (heuristic.requiresData) {
+    var findFunction = heuristic.findFunction;
+    var query = getQuery(user, queue, heuristic);
+    dbHandle.mapReduce(query, function(err, mongoData) {
+      findFunction(user, queue, mongoData, partnerCallback);
+    });
   }
+  else {
+    heuristic.overrideFunction(user, queue, partnerCallback);
+  }
+}
 }

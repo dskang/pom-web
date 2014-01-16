@@ -22,7 +22,6 @@ var conversationSchema = new Schema({
 
 // Compile schema into mongoDB model object, which can be used to manipulate 
 // the set of Conversation documents below.
-
 var Conversation = mongoose.model('Conversation', conversationSchema);
 
 /******************************************************************************
@@ -30,6 +29,7 @@ var Conversation = mongoose.model('Conversation', conversationSchema);
 * module.
 ******************************************************************************/
 
+// Saves the conversation into MongoDB
 exports.save = function(conversation) {
   var user1 = conversation.user1;
   var user2 = conversation.user2;
@@ -45,21 +45,13 @@ exports.save = function(conversation) {
     user1MessagesSent: user1.messagesSent,
     user2MessagesSent: user2.messagesSent
   }).save();
-
-  console.log("---------------CURRENT DATABASE----------------");
-  Conversation.find(function(err, data) {
-    console.log(data);
-  })
 };
 
- // Given a current user and a queue of potential matches, implement
- // the UCB1 algorithm with a pre-defined set of heuristics as the 
- // bandit-arms. See write-up for more details.
- exports.pickPartner = function (user, queue, partnerCallback) {
+// Given a current user and a queue of potential matches, implement
+// the UCB1 algorithm with a pre-defined set of heuristics as the 
+// bandit-arms. See write-up for more details.
+exports.pickPartner = function (user, queue, partnerCallback) {
   heuristics.pick(Conversation, user, queue, partnerCallback, function(chosenHeuristic) {
-    console.log("****************************************");
-    console.log("CHOSEN HEURISTIC IS " + chosenHeuristic);
-    console.log("****************************************");
     user.conversation.matchingHeuristic = chosenHeuristic;
     heuristics.execute(Conversation, user, queue, partnerCallback, heuristics[chosenHeuristic]);
   });
