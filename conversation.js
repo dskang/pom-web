@@ -1,6 +1,16 @@
 var mongoose = require('mongoose')
 , Schema = mongoose.Schema;
 var heuristics = require('./heuristics.js');
+var nodemailer = require('nodemailer');
+
+// create reusable transport method (opens pool of SMTP connections)
+var smtpTransport = nodemailer.createTransport("SMTP",{
+    service: "Gmail",
+    auth: {
+        user: "tigersanon@gmail.com",
+        pass: "originblack"
+    }
+});
 
 /******************************************************************************
 * Initialize mongoDB database schema and model
@@ -29,7 +39,8 @@ var Conversation = mongoose.model('Conversation', conversationSchema);
 * module.
 ******************************************************************************/
 
-// Saves the conversation into MongoDB
+// Saves the conversation into MongoDB and send an email copy to
+// tigersanon@gmail.com 
 exports.save = function(conversation) {
   var user1 = conversation.user1;
   var user2 = conversation.user2;
@@ -45,6 +56,36 @@ exports.save = function(conversation) {
     user1MessagesSent: user1.messagesSent,
     user2MessagesSent: user2.messagesSent
   }).save();
+
+// setup chat log email
+var conversationLog = {
+    from: "TigersAnonymous <tigersanon@gmail.com>",
+    to: "tigersanon@gmail.com",
+    subject: "Conversation Log - " + (new Date(conversation.startTime)).toString(), // Subject line
+    text: conversation.chatLog + 
+    "\n--------------------------------------\n\n" + 
+    "First User: " + user1.id + " (" + conversation.pseudonym1 + ")" + 
+    "\nSecond User: " + user2.id + " (" + conversation.pseudonym2 + ")" +
+    "\nMatching Heuristic: " + conversation.matchingHeuristic + 
+    "\nStart Time: " + (new Date(conversation.startTime)).toString() + 
+    "\nLength: " + ((conversation.endTime - conversation.startTime) / 60000).toFixed(2) + " minutes" + 
+    "\nButton Displayed: " + (conversation.buttonDisplayed ? "Yes" : "No") +
+    "\nUser 1 Clicked: " + (conversation.user1Clicked ? "Yes" : "No") + 
+    "\nUser 2 Clicked: " + (conversation.user2Clicked ? "Yes" : "No") +
+    "\nUser 1 Messages Sent: " + user1.messagesSent + 
+    "\nUser 2 Messages Sent: " + user2.messagesSent 
+}
+
+// send conversation log to tigersanon@gmail.com
+smtpTransport.sendMail(conversationLog, function(error, response) {
+    if (error) {
+        console.log(error);
+    }
+    else {
+        console.log("Message sent: " + response.message);
+    }
+});
+
 };
 
 // Given a current user and a queue of potential matches, implement

@@ -6,7 +6,8 @@
     "express": "*",
     "range_check": "*",
     "mongoose": "*",
-    "crypto": "*"
+    "crypto": "*", 
+    "nodemailer": "*"
   },
   "author": "Origin Black"
 }

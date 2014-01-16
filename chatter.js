@@ -32,7 +32,16 @@ function User(socket, userID) {
 
   this.socket.on('chat message', function(data) {
     if (!user.conversation) return;
+ 
+    var convo = user.conversation;
+    var userPseudonym = (convo.user1 === user ? convo.pseudonym1 : convo.pseudonym2) + ": ";
+    var d = new Date();
+    var timeStamp = "[" + (d.getMonth() + 1) + "/" + (d.getDate()) + "/" + 
+      (d.getFullYear()).toString().substring(2, 4) + " " + (d.getHours()) + ":" +
+      (d.getMinutes()) + ":" + d.getSeconds() + "] ";
+    var messageLog = timeStamp + userPseudonym + data.message + "\n";
 
+    user.conversation.chatLog += messageLog;
     user.messagesSent++;
     user.socket.emit('chat message', {
       name: 'You',
@@ -93,6 +102,9 @@ function Conversation(user1) {
     this.matchingHeuristic = null;
     this.buttonDisplayed = false;
     this.revealed = false;
+    this.chatLog = "";
+    this.pseudonym1 = "Origin";
+    this.pseudonym2 = "Black"
 }
 
 exports.connectChatter = function(socket, userID) {

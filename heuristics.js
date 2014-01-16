@@ -1,3 +1,6 @@
+var largePositiveNumber = 1000000000;
+var largeNegativeNumber = -1000000000;
+
 /******************************************************************************
 * Implement UCB1 function
 ******************************************************************************/
@@ -9,7 +12,7 @@ var UCB1 = function(mongoData, heuristicCallback) {
 
   if (typeof(mongoData) === "undefined") {
     for (var i = 0; i < numHeuristics; i++) {
-      finalData.heuristicList[i] = Number.MAX_VALUE;
+      finalData.heuristicList[i] = largePositiveNumber;
     }
   }
   else {
@@ -20,7 +23,7 @@ var UCB1 = function(mongoData, heuristicCallback) {
     }
     for (var i = 0; i < numHeuristics; i++) {
       if (typeof(mongoLookup[heuristicList[i]]) === "undefined") {
-       finalData[heuristicList[i]] = Number.MAX_VALUE;
+       finalData[heuristicList[i]] = largePositiveNumber;
      }
      else {
       // calculate UCB value for the current heuristic
@@ -32,7 +35,7 @@ var UCB1 = function(mongoData, heuristicCallback) {
 }
 
 // initialize running max variables
-var bestValue = Number.MIN_VALUE;
+var bestValue = largeNegativeNumber;
 var bestMatch = null;
 
 for (var i = 0; i < numHeuristics; i++) {
@@ -43,6 +46,7 @@ for (var i = 0; i < numHeuristics; i++) {
   }
 }
 
+console.log("CHOSE HEURISTIC " + bestMatch);
 heuristicCallback(bestMatch);
 };
 
@@ -93,12 +97,13 @@ var getQuery = function(user, queue, heuristic) {
 // Find the partner in the queue with the max distance from the user
 // based on the mongoData array.
 var findMaxDistance = function(user, queue, mongoData, partnerCallback) {
+  console.log("INSIDE MAX DISTANCE!");
   var finalData = {};
   var queueLength = queue.length;
 
   if (typeof(mongoData) === "undefined") {
     for (var i = 0; i < queueLength; i++) {
-      finalData[queue[i].id] = Number.MIN_VALUE;
+      finalData[queue[i].id] = largeNegativeNumber;
     }
   }
   else {
@@ -110,7 +115,7 @@ var findMaxDistance = function(user, queue, mongoData, partnerCallback) {
 
     for (var i = 0; i < queueLength; i++) {
       if (typeof(mongoLookup[queue[i].id]) === "undefined") {
-        finalData[queue[i].id] = Number.MIN_VALUE;
+        finalData[queue[i].id] = largeNegativeNumber;
       }
       else {
         finalData[queue[i].id] = mongoLookup[queue[i].id];
@@ -118,15 +123,21 @@ var findMaxDistance = function(user, queue, mongoData, partnerCallback) {
     }
   }
 
+  console.log("FINAL DATA!");
+  console.log(finalData);
+
   userValue = finalData[user.id];
 // initialize running max variables
-var bestDistance = Number.MIN_VALUE;
+var bestDistance = largeNegativeNumber;
 var bestMatch = null;
 var queueLength = queue.length;
 
 for (var i = 0; i < queueLength; i++) {
   var currentValue = finalData[queue[i].id];
+  console.log("CURRENT VALUE = " + currentValue);
   var currentDist = Math.abs(currentValue - userValue);
+  console.log("CURRENT DIST = " + currentDist);
+  console.log(currentDist >= bestDistance);
   if (currentDist >= bestDistance) {
     bestMatch = queue[i];
     bestDistance = currentDist;
@@ -147,7 +158,7 @@ var findMinDistance = function(user, queue, mongoData, partnerCallback) {
 
   if (typeof(mongoData) === "undefined") {
     for (var i = 0; i < queueLength; i++) {
-      finalData[queue[i].id] = Number.MAX_VALUE;
+      finalData[queue[i].id] = largePositiveNumber;
     }
   }
   else {
@@ -159,7 +170,7 @@ var findMinDistance = function(user, queue, mongoData, partnerCallback) {
 
     for (var i = 0; i < queueLength; i++) {
       if (typeof(mongoLookup[queue[i].id]) === "undefined") {
-        finalData[queue[i].id] = Number.MAX_VALUE;
+        finalData[queue[i].id] = largePositiveNumber;
       }
       else {
         finalData[queue[i].id] = mongoLookup[queue[i].id];
@@ -169,7 +180,7 @@ var findMinDistance = function(user, queue, mongoData, partnerCallback) {
 
   userValue = finalData[user.id];
 // initialize running max variables
-var bestDistance = Number.MAX_VALUE;
+var bestDistance = largePositiveNumber;
 var bestMatch = null;
 var queueLength = queue.length;
 
@@ -395,7 +406,7 @@ pick: function(dbHandle, user, queue, partnerCallback, heuristicCallback) {
       emit(this.matchingHeuristic, {plays:1, wins:0});
       emit("AllHeuristics", {plays: 1, wins: 0});
     }
-    
+
   };
   query.reduce = function(k, v) {
     var sum = 0.0;
@@ -415,9 +426,12 @@ pick: function(dbHandle, user, queue, partnerCallback, heuristicCallback) {
 }, 
 
 execute: function(dbHandle, user, queue, partnerCallback, heuristic) {
+  console.log("EXECUTING: ");
+  console.log(heuristic);
   if (heuristic.requiresData) {
     var findFunction = heuristic.findFunction;
     var query = getQuery(user, queue, heuristic);
+    console.log("GETTING DATA!");
     dbHandle.mapReduce(query, function(err, mongoData) {
       findFunction(user, queue, mongoData, partnerCallback);
     });
