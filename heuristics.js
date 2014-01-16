@@ -10,9 +10,11 @@ var UCB1 = function(mongoData, heuristicCallback) {
   var heuristicList = module.exports.list;
   var finalData = {};
 
+  // if there is no data, set all heuristics to a large positive number
   if (typeof(mongoData) === "undefined") {
     for (var i = 0; i < heuristicList.length; i++) {
-      finalData.heuristicList[i] = largePositiveNumber;
+      console.log(heuristicList[i]);
+      finalData[heuristicList[i]] = largePositiveNumber;
     }
   } else {
     var mongoLookup = {};
@@ -43,7 +45,7 @@ var UCB1 = function(mongoData, heuristicCallback) {
     }
   }
 
-  console.log("UCB1 selected " + bestMatch);
+  console.log("UCB1 selected the \"" + bestMatch + "\" heuristic.");
 
   heuristicCallback(bestMatch);
 };
