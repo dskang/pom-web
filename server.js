@@ -4,6 +4,7 @@ var express = require('express'),
     io = require('socket.io').listen(server),
     princeton = require('./princeton'),
     mongoose = require('mongoose'),
+    conversation = require('./conversation'),
     chatter = require('./chatter.js'),
     crypto = require('crypto');
 

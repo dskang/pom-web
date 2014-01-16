@@ -1,8 +1,7 @@
-var convo = require('./conversation.js');
-var queue = new Array();
-
-// FIXME: make this larger than 0
-var threshold = 0;
+var mongoose = require('mongoose')
+    Conversation = mongoose.model('Conversation');
+var heuristics = require('./heuristics');
+var mailer = require('./mailer');
 
 function User(socket, userID) {
   this.socket = socket;
@@ -20,7 +19,7 @@ function User(socket, userID) {
 
     if (!user.conversation.endTime) {
       user.conversation.endTime = Date.now();
-      convo.save(user.conversation);
+      user.conversation.save();
 
       var userName = user.conversation.revealed ? user.name : 'Anonymous Tiger';
       user.partner.socket.emit('finished', {
@@ -32,16 +31,15 @@ function User(socket, userID) {
 
   this.socket.on('chat message', function(data) {
     if (!user.conversation) return;
- 
-    var convo = user.conversation;
-    var userPseudonym = (convo.user1 === user ? convo.pseudonym1 : convo.pseudonym2) + ": ";
+
+    var userPseudonym = (user.conversation.user1 === user ? 'Origin' : 'Black') + ": ";
     var d = new Date();
     var timeStamp = "[" + (d.getMonth() + 1) + "/" + (d.getDate()) + "/" + 
       (d.getFullYear()).toString().substring(2, 4) + " " + (d.getHours()) + ":" +
       (d.getMinutes()) + ":" + d.getSeconds() + "] ";
     var messageLog = timeStamp + userPseudonym + data.message + "\n";
-
     user.conversation.chatLog += messageLog;
+
     user.messagesSent++;
     user.socket.emit('chat message', {
       name: 'You',
@@ -94,8 +92,8 @@ function User(socket, userID) {
   });
 }
 
-function Conversation(user1) {
-    this.user1 = user1;
+function ConversationWrapper() {
+    this.user1 = null;
     this.user2 = null;
     this.startTime = Date.now();
     this.endTime = null;
@@ -103,12 +101,42 @@ function Conversation(user1) {
     this.buttonDisplayed = false;
     this.revealed = false;
     this.chatLog = "";
-    this.pseudonym1 = "Origin";
-    this.pseudonym2 = "Black"
+
+    var self = this;
+    this.save = function() {
+      new Conversation({
+        userID1: self.user1.id,
+        userID2: self.user2.id,
+        matchingHeuristic: self.matchingHeuristic,
+        startTime: self.startTime,
+        endTime: self.endTime,
+        buttonDisplayed: self.buttonDisplayed,
+        user1Clicked: self.user1.buttonClicked,
+        user2Clicked: self.user2.buttonClicked,
+        user1MessagesSent: self.user1.messagesSent,
+        user2MessagesSent: self.user2.messagesSent
+      }).save();
+
+      mailer.sendMail(this);
+    };
 }
 
-exports.connectChatter = function(socket, userID) {
+// Given a current user and a queue of potential matches, implement
+// the UCB1 algorithm with a pre-defined set of heuristics as the
+// bandit-arms. See write-up for more details.
+var pickPartner = function(user, queue, partnerCallback) {
+  console.log("Pairing detected, picking partner now.");
+  heuristics.pick(Conversation, user, queue, partnerCallback, function(chosenHeuristic) {
+    user.conversation.matchingHeuristic = chosenHeuristic;
+    heuristics.execute(Conversation, user, queue, partnerCallback, heuristics[chosenHeuristic]);
+  });
+};
 
+// FIXME: make this larger than 0
+var threshold = 0;
+var queue = new Array();
+
+exports.connectChatter = function(socket, userID) {
   var user = new User(socket, userID);
 
   socket.emit('entrance', {
@@ -125,28 +153,28 @@ exports.connectChatter = function(socket, userID) {
     user.socket.on('disconnect', function() {
       queue.splice(queue.indexOf(user), 1);
     });
-
   } else {
     // Create conversation
-    var conversation = new Conversation(user);
+    var conversation = new ConversationWrapper();
+    conversation.user1 = user;
     user.conversation = conversation;
 
     // Match user with partner
-    convo.pickPartner(user, queue, function(partner) {
-    console.log("Partner selected!");
-    console.log("Current partner is " + partner.id + ".");
-    user.partner = partner;
-    partner.partner = user;
+    pickPartner(user, queue, function(partner) {
+      console.log("Partner selected!");
+      console.log("Current partner is " + partner.id + ".");
+      user.partner = partner;
+      partner.partner = user;
 
-    conversation.user2 = partner;
-    partner.conversation = conversation;
+      conversation.user2 = partner;
+      partner.conversation = conversation;
 
-    // Notify users that they are connected
-    var connectedMessage = {
-      message: "You're now chatting with another Princeton student. Say hi!"
-    };
-    user.socket.emit('matched', connectedMessage);
-    partner.socket.emit('matched', connectedMessage);
-  });
+      // Notify users that they are connected
+      var connectedMessage = {
+        message: "You're now chatting with another Princeton student. Say hi!"
+      };
+      user.socket.emit('matched', connectedMessage);
+      partner.socket.emit('matched', connectedMessage);
+    });
   }
 };
