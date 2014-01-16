@@ -6,6 +6,7 @@ var largeNegativeNumber = -1000000000;
 ******************************************************************************/
 
 var UCB1 = function(mongoData, heuristicCallback) {
+  console.log("Running UCB algorithm to select heuristic.");
   var heuristicList = module.exports.list;
   var finalData = {};
   var numHeuristics = heuristicList.length;
@@ -45,6 +46,8 @@ for (var i = 0; i < numHeuristics; i++) {
     bestValue = currentValue;
   }
 }
+
+console.log("UCB1 selected " + bestMatch);
 
 heuristicCallback(bestMatch);
 };
@@ -96,6 +99,7 @@ var getQuery = function(user, queue, heuristic) {
 // Find the partner in the queue with the max distance from the user
 // based on the mongoData array.
 var findMaxDistance = function(user, queue, mongoData, partnerCallback) {
+  console.log("Finding max distance between user and queue for the heuristic");
   var finalData = {};
   var queueLength = queue.length;
 
@@ -152,6 +156,8 @@ partnerCallback(bestMatch);
 // Find the partner in the queue with the min distance from the user
 // based on the mongoData array.
 var findMinDistance = function(user, queue, mongoData, partnerCallback) {
+
+console.log("Finding min distance between user and queue for the heuristic");
 
   var finalData = {};
   var queueLength = queue.length;
@@ -403,6 +409,7 @@ MessageDiscrepancyHiHi: {
 },   
 
 pick: function(dbHandle, user, queue, partnerCallback, heuristicCallback) {
+  console.log("Currently picking heuristic to match users.");
   var query = {};
   query.map = function() {
     if (this.user1Clicked && this.user2Clicked) {
@@ -433,6 +440,7 @@ pick: function(dbHandle, user, queue, partnerCallback, heuristicCallback) {
 }, 
 
 execute: function(dbHandle, user, queue, partnerCallback, heuristic) {
+  console.log("Executing heuristic now.");
   if (heuristic.requiresData) {
     var findFunction = heuristic.findFunction;
     var query = getQuery(user, queue, heuristic);

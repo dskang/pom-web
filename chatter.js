@@ -133,6 +133,8 @@ exports.connectChatter = function(socket, userID) {
 
     // Match user with partner
     convo.pickPartner(user, queue, function(partner) {
+    console.log("Partner selected!");
+    console.log("Current partner is " + partner.id + ".");
     user.partner = partner;
     partner.partner = user;
 

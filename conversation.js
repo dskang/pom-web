@@ -92,6 +92,7 @@ smtpTransport.sendMail(conversationLog, function(error, response) {
 // the UCB1 algorithm with a pre-defined set of heuristics as the 
 // bandit-arms. See write-up for more details.
 exports.pickPartner = function (user, queue, partnerCallback) {
+  console.log("Pairing detected, picking partner now.")
   heuristics.pick(Conversation, user, queue, partnerCallback, function(chosenHeuristic) {
     user.conversation.matchingHeuristic = chosenHeuristic;
     heuristics.execute(Conversation, user, queue, partnerCallback, heuristics[chosenHeuristic]);
