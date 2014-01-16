@@ -61,6 +61,11 @@ function User(socket, userID) {
   this.socket.on('identity', function(data) {
     if (!user.conversation) return;
 
+    user.conversation.chatLog.push({
+      date: new Date(), 
+      user: "",
+      message: "*** Facebook Identities Revealed ***"
+    });
     user.name = data.name;
     user.fbLink = data.link;
     user.buttonClicked = true;
