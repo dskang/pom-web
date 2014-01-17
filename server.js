@@ -37,7 +37,7 @@ app.get('/chat', function(req, res) {
 
 app.use(express.static(__dirname + '/public'));
 
-var connectedUsers = {}
+var connectedUsers = {};
 
 io.configure('production', function() {
   io.enable('browser client minification');

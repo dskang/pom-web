@@ -2,7 +2,7 @@ var mongoose = require('mongoose');
 var Conversation = mongoose.model('Conversation');
 var heuristics = require('./heuristics');
 var mailer = require('./mailer');
-var prompt = require('./prompt')
+var prompts = require('./prompts');
 
 function User(socket, userID) {
   this.socket = socket;
@@ -22,7 +22,7 @@ function User(socket, userID) {
       user.conversation.endTime = new Date();
       user.conversation.save();
       user.partner.socket.emit('finished', {
-        message: prompt.getDisconnectedMessage(user)
+        message: prompts.getDisconnectedMessage(user)
       });
       user.partner.socket.disconnect();
     }
@@ -149,13 +149,13 @@ exports.connectChatter = function(socket, userID) {
   var user = new User(socket, userID);
 
   socket.emit('entrance', {
-    message: prompt.getWelcomeMessage()
+    message: prompts.getWelcomeMessage()
   });
 
   if (queue.length <= threshold) {
     queue.push(user);
     user.socket.emit('waiting', {
-      message: prompt.getWaitingMessage()
+      message: prompts.getWaitingMessage()
     });
 
     user.socket.on('disconnect', function() {
@@ -179,20 +179,20 @@ exports.connectChatter = function(socket, userID) {
       partner.conversation = conversation;
       partner.pseudonym = 'Origin';
 
-      var introMessage = prompt.getConnectedMessage();
-      var introQuestion = prompt.getConnectedQuestion();
-      // Notify users that they are connected
+      var introMessage = prompts.getConnectedMessage();
+      var question = prompts.getRandomQuestion();
+      var introQuestion = prompts.getQuestionMessage(question);
+      // FIXME: separate event
       var connectedMessage = {
-        message: introMessage + introQuestion
+        message: introMessage + ' ' + introQuestion
       };
 
-      // Log introduction question
       conversation.chatLog.push({
         date: new Date(),
         user: '',
-        text: introQuestion
+        text: question
       });
-      
+
       user.socket.emit('matched', connectedMessage);
       partner.socket.emit('matched', connectedMessage);
     });
