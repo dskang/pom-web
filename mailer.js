@@ -64,7 +64,7 @@ var formatConversationMetadata = function(conversation) {
   var data = [
     'User 1: ' + conversation.user1.id + ' (Origin)',
     'User 2: ' + conversation.user2.id + ' (Black)',
-    'Matching heuristic: ' + conversation.matchingHeuristic,
+    'Question: ' + conversation.question,
     'Start time: ' + formatDate(conversation.startTime),
     'End time: ' + formatDate(conversation.endTime),
     'Length: ' + timeString(Math.floor((conversation.endTime - conversation.startTime) / 1000)),

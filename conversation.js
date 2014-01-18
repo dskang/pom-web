@@ -5,7 +5,7 @@ var conversationSchema = new mongoose.Schema({
   userID2: String,
   startTime: Date,
   endTime: Date,
-  matchingHeuristic: String,
+  question: String,
   buttonDisplayed: Boolean,
   user1Clicked: Boolean,
   user2Clicked: Boolean,

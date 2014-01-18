@@ -1,6 +1,6 @@
 var mongoose = require('mongoose');
 var Conversation = mongoose.model('Conversation');
-var heuristics = require('./heuristics');
+var ucb = require('./ucb');
 var mailer = require('./mailer');
 var prompts = require('./prompts');
 
@@ -106,7 +106,7 @@ function ConversationWrapper() {
     this.user2 = null;
     this.startTime = new Date();
     this.endTime = null;
-    this.matchingHeuristic = null;
+    this.question = null;
     this.buttonDisplayed = false;
     this.revealed = false;
     this.chatLog = [];
@@ -116,7 +116,7 @@ function ConversationWrapper() {
       new Conversation({
         userID1: self.user1.id,
         userID2: self.user2.id,
-        matchingHeuristic: self.matchingHeuristic,
+        question: self.question,
         startTime: self.startTime,
         endTime: self.endTime,
         buttonDisplayed: self.buttonDisplayed,
@@ -130,21 +130,7 @@ function ConversationWrapper() {
     };
 }
 
-// Given a current user and a queue of potential matches, implement
-// the UCB1 algorithm with a pre-defined set of heuristics as the
-// bandit-arms. See write-up for more details.
-var pickPartner = function(user, queue, partnerCallback) {
-  console.log("Pairing detected, picking partner now.");
-  heuristics.pick(Conversation, user, queue, partnerCallback, function(chosenHeuristic) {
-    user.conversation.matchingHeuristic = chosenHeuristic;
-    heuristics.execute(Conversation, user, queue, partnerCallback, heuristics[chosenHeuristic]);
-  });
-};
-
-// FIXME: make this larger than 0
-var threshold = 0;
 var queue = new Array();
-
 exports.connectChatter = function(socket, userID) {
   var user = new User(socket, userID);
 
@@ -152,7 +138,7 @@ exports.connectChatter = function(socket, userID) {
     message: prompts.getWelcomeMessage()
   });
 
-  if (queue.length <= threshold) {
+  if (queue.length === 0) {
     queue.push(user);
     user.socket.emit('waiting', {
       message: prompts.getWaitingMessage()
@@ -168,19 +154,16 @@ exports.connectChatter = function(socket, userID) {
     user.conversation = conversation;
     user.pseudonym = 'Black';
 
-    // Match user with partner
-    pickPartner(user, queue, function(partner) {
-      console.log("Partner selected!");
-      console.log("Current partner is " + partner.id + ".");
-      user.partner = partner;
-      partner.partner = user;
+    var partner = queue.shift();
+    user.partner = partner;
+    partner.partner = user;
+    conversation.user2 = partner;
+    partner.conversation = conversation;
+    partner.pseudonym = 'Origin';
 
-      conversation.user2 = partner;
-      partner.conversation = conversation;
-      partner.pseudonym = 'Origin';
-
+    ucb.getQuestion(Conversation, user, partner, function(question) {
       var introMessage = prompts.getConnectedMessage();
-      var question = prompts.getRandomQuestion();
+      user.conversation.question = question;
       var introQuestion = prompts.getQuestionMessage(question);
       // FIXME: separate event
       var connectedMessage = {
@@ -195,6 +178,7 @@ exports.connectChatter = function(socket, userID) {
 
       user.socket.emit('matched', connectedMessage);
       partner.socket.emit('matched', connectedMessage);
+
     });
   }
 };
