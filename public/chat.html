@@ -16,7 +16,7 @@
     <div class="chat-container">
       <div class="dropdown" ng-show="dropdown.shouldShowFull() && state == 'chatting'" ng-cloak>
         <div class="question">
-          Would you like to remove anonymization?
+          Would you like to find out who you've been chatting with?
         </div>
         <div class="options">
           <button type="button" class="yes-btn" ng-click="dropdown.accept()">Yes</button>
@@ -31,7 +31,7 @@
               <span ng-bind-html="message.text | linky | linkyNewlines"></span>
             </div>
             <div ng-switch-when="reveal">
-              Congratulations! Both parties have opted to remove anonymization.<br>
+              Congratulations! Both parties want to find out who they've been chatting with.<br>
               You have been chatting with: <a href="{{message.partnerLink}}" target="_blank">{{message.partnerName}}</a>
             </div>
             <div ng-switch-default>
