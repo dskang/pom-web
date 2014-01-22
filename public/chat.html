@@ -16,7 +16,7 @@
     <div class="chat-container">
       <div class="dropdown" ng-show="dropdown.shouldShowFull() && state == 'chatting'" ng-cloak>
         <div class="question">
-          Would you like to find out who you've been chatting with?
+          Do you want to find out who you've been chatting with?
         </div>
         <div class="options">
           <button type="button" class="yes-btn" ng-click="dropdown.accept()">Yes</button>
@@ -30,12 +30,49 @@
               <span ng-class="{userName: !message.isPartner, partnerName: message.isPartner}">{{message.name}}:</span>
               <span ng-bind-html="message.text | linky | linkyNewlines"></span>
             </div>
-            <div ng-switch-when="reveal">
-              Congratulations! Both parties want to find out who they've been chatting with.<br>
-              You have been chatting with: <a href="{{message.partnerLink}}" target="_blank">{{message.partnerName}}</a>
-            </div>
-            <div ng-switch-default>
-              {{message.text }}
+            <div ng-switch-when="system">
+              <div ng-switch="message.template" ng-class="{important: message.important}">
+                <div ng-switch-when="entrance">
+                  Welcome to Tigers Anonymous!
+                </div>
+                <div ng-switch-when="waiting">
+                  Waiting for another Princeton student to join...
+                </div>
+                <div ng-switch-when="matched">
+                  You're now chatting with another Princeton student!<br>
+                  <div class="question-box">
+                    {{message.question}}
+                  </div>
+                </div>
+                <div ng-switch-when="selfRevealed">
+                  You'll find out who your partner is if your partner wants to find out who you are.
+                </div>
+                <div ng-switch-when="partnerRevealed">
+                  Congratulations! Both parties want to find out who they've been chatting with.<br>
+                  You've been chatting with: <a href="{{message.partnerLink}}" target="_blank">{{message.partnerName}}</a>
+                </div>
+                <div ng-switch-when="fakeFacebook">
+                  Unable to remove anonymization: Your Facebook account does not appear to be legitimate.
+                </div>
+                <div ng-switch-when="finished">
+                  {{partnerName}} has disconnected. Refresh the page to start another chat!
+                </div>
+                <div ng-switch-when="disconnected">
+                  You have been disconnected.
+                </div>
+                <div ng-switch-when="error">
+                  Unable to connect. Please ensure the following:
+                  <ol>
+                    <li>You are using a computer connected to Princeton's network.</li>
+                    <li>You are not already chatting with a user.</li>
+                    <li>You are using a modern web browser that supports WebSockets.</li>
+                    <li>You have a working Internet connection.</li>
+                  </ol>
+                </div>
+                <div ng-switch-default>
+                  {{message.text}}
+                </div>
+              </div>
             </div>
           </li>
           <li class="typing" ng-show="partnerTyping && state == 'chatting'">

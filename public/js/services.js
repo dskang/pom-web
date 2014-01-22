@@ -80,7 +80,7 @@ app.factory('dropdown', function($rootScope, socket, messages) {
     $rootScope.$apply(function() {
       messages.add({
         type: 'system',
-        text: 'Identities will be revealed when both parties have opted to remove anonymization.'
+        template: 'selfRevealed'
       });
     });
     mixpanel.track('self revealed');
@@ -94,8 +94,8 @@ app.factory('dropdown', function($rootScope, socket, messages) {
       } else {
         $rootScope.$apply(function() {
           messages.add({
-            type: 'warning',
-            text: 'Unable to remove anonymization: Your Facebook account does not appear to be legitimate.'
+            type: 'system',
+            template: 'fakeFacebook'
           });
         });
         mixpanel.track('facebook fake');

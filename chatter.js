@@ -2,7 +2,6 @@ var mongoose = require('mongoose');
 var Conversation = mongoose.model('Conversation');
 var ucb = require('./ucb');
 var mailer = require('./mailer');
-var prompts = require('./prompts');
 
 function User(socket, userID) {
   this.socket = socket;
@@ -21,9 +20,7 @@ function User(socket, userID) {
     if (!user.conversation.endTime) {
       user.conversation.endTime = new Date();
       user.conversation.save();
-      user.partner.socket.emit('finished', {
-        message: prompts.getDisconnectedMessage(user)
-      });
+      user.partner.socket.emit('finished');
       user.partner.socket.disconnect();
     }
   });
@@ -134,15 +131,11 @@ var queue = new Array();
 exports.connectChatter = function(socket, userID) {
   var user = new User(socket, userID);
 
-  socket.emit('entrance', {
-    message: prompts.getWelcomeMessage()
-  });
+  socket.emit('entrance');
 
   if (queue.length === 0) {
     queue.push(user);
-    user.socket.emit('waiting', {
-      message: prompts.getWaitingMessage()
-    });
+    user.socket.emit('waiting');
 
     user.socket.on('disconnect', function() {
       queue.splice(queue.indexOf(user), 1);
@@ -162,23 +155,19 @@ exports.connectChatter = function(socket, userID) {
     partner.pseudonym = 'Origin';
 
     ucb.getQuestion(Conversation, user, partner, function(question) {
-      var introMessage = prompts.getConnectedMessage();
       user.conversation.question = question;
-      var introQuestion = prompts.getQuestionMessage(question);
-      // FIXME: separate event
-      var connectedMessage = {
-        message: introMessage + ' ' + introQuestion
-      };
+      user.socket.emit('matched', {
+        question: question
+      });
+      partner.socket.emit('matched', {
+        question: question
+      });
 
       conversation.chatLog.push({
         date: new Date(),
         user: '',
         text: question
       });
-
-      user.socket.emit('matched', connectedMessage);
-      partner.socket.emit('matched', connectedMessage);
-
     });
   }
 };

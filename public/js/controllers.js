@@ -37,19 +37,11 @@ app.controller('ChatCtrl', function($scope, $window, socket, messages, dropdown)
   socket.on('error', function() {
     // socket.io currently doesn't pass in custom error message
     // https://github.com/LearnBoost/socket.io/issues/545
-    var msgs = [
-      "Unable to connect. Please ensure the following:",
-      "1. You are using a computer connected to Princeton's network.",
-      "2. You are not already chatting with a user.",
-      "3. You are using a modern web browser that supports WebSockets.",
-      "4. You have a working Internet connection."
-    ];
-    for (var i = 0; i < msgs.length; i++) {
-      messages.add({
-        type: 'warning',
-        text: msgs[i]
-      });
-    }
+    messages.add({
+      type: 'system',
+      important: true,
+      template: 'error'
+    });
     $scope.state = 'error';
     mixpanel.track('error');
   });
@@ -62,7 +54,7 @@ app.controller('ChatCtrl', function($scope, $window, socket, messages, dropdown)
   socket.on('entrance', function(data) {
     messages.add({
       type: 'system',
-      text: data.message
+      template: 'entrance'
     });
   });
 
@@ -70,7 +62,7 @@ app.controller('ChatCtrl', function($scope, $window, socket, messages, dropdown)
   socket.on('waiting', function(data) {
     messages.add({
       type: 'system',
-      text: data.message
+      template: 'waiting'
     });
     $scope.state = 'waiting';
 
@@ -80,18 +72,22 @@ app.controller('ChatCtrl', function($scope, $window, socket, messages, dropdown)
   socket.on('matched', function(data) {
     messages.add({
       type: 'system',
-      text: data.message
+      template: 'matched',
+      question: data.question
     });
     $scope.state = 'chatting';
 
     if (startWait) {
       var endWait = Date.now();
       var waitTime = Math.floor((endWait - startWait) / 1000);
-      mixpanel.track('chat matched', function() {
-        waitTime: waitTime
+      mixpanel.track('chat matched', {
+        waitTime: waitTime,
+        question: data.question
       });
     } else {
-      mixpanel.track('chat matched');
+      mixpanel.track('chat matched', {
+        question: data.question
+      });
     }
   });
 
@@ -114,7 +110,8 @@ app.controller('ChatCtrl', function($scope, $window, socket, messages, dropdown)
   socket.on('reveal', function(data) {
     $scope.partnerName = data.name;
     messages.add({
-      type: 'reveal',
+      type: 'system',
+      template: 'partnerRevealed',
       partnerName: data.name,
       partnerLink: data.link
     });
@@ -123,8 +120,9 @@ app.controller('ChatCtrl', function($scope, $window, socket, messages, dropdown)
 
   socket.on('finished', function(data) {
     messages.add({
-      type: 'warning',
-      text: data.message
+      type: 'system',
+      important: true,
+      template: 'finished'
     });
     $scope.state = 'finished';
 
@@ -138,8 +136,9 @@ app.controller('ChatCtrl', function($scope, $window, socket, messages, dropdown)
   socket.on('disconnect', function() {
     if ($scope.state !== 'finished') {
       messages.add({
-        type: 'warning',
-        text: 'You have been disconnected.'
+        type: 'system',
+        important: true,
+        template: 'disconnected'
       });
     }
     $scope.state = 'disconnected';

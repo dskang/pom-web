@@ -201,7 +201,7 @@ body {
   padding: 0;
 }
 
-.chatroom li {
+.chatroom ul > li {
   list-style: none;
 }
 
@@ -218,21 +218,24 @@ body {
   font-weight: bold;
 }
 
-.warning {
-  font-weight: bold;
+.system .important {
   color: #F00;
 }
 
-.reveal {
-  font-weight: bold;
-}
-
-.reveal a {
+.system a {
   color: #333;
 }
 
 .typing {
   font-weight: bold;
+}
+
+.question-box {
+  margin: 10px;
+  padding: 10px;
+  text-align: center;
+  border: 1px solid #000;
+  border-radius: 10px;
 }
 
 /* Input */
