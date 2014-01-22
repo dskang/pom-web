@@ -22,8 +22,10 @@ app.controller('ChatCtrl', function($scope, $window, socket, messages, dropdown,
         return 'Leaving this page will end your conversation.';
       };
       $window.onunload = function() {
+        timer.stop('chatting');
         mixpanel.track('chat ended', {
           quit: true,
+          duration: timer.getDuration('chatting'),
           messagesSent: messages.stats.sent,
           messagesReceived: messages.stats.received
         });
@@ -75,6 +77,7 @@ app.controller('ChatCtrl', function($scope, $window, socket, messages, dropdown,
       question: data.question
     });
     $scope.state = 'chatting';
+    timer.start('chatting');
 
     if (timer.getTimer('waiting')) {
       timer.stop('waiting');
@@ -124,8 +127,10 @@ app.controller('ChatCtrl', function($scope, $window, socket, messages, dropdown,
     });
     $scope.state = 'finished';
 
+    timer.stop('chatting');
     mixpanel.track('chat ended', {
       quit: false,
+      duration: timer.getDuration('chatting'),
       messagesSent: messages.stats.sent,
       messagesReceived: messages.stats.received
     });
