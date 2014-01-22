@@ -123,7 +123,9 @@ function ConversationWrapper() {
         user2MessagesSent: self.user2.messagesSent
       }).save();
 
-      mailer.sendMail(this);
+      if (process.env.NODE_ENV === 'production') {
+        mailer.sendMail(this);
+      }
     };
 }
 

@@ -27,10 +27,10 @@ var timeString = function(seconds) {
   var text;
   if (hours > 1) {
     text = hours + ' ' + hourText;
-    if (minutes > 0) text += 'and ' + minutes + ' ' + minuteText;
+    if (minutes > 0) text += ' and ' + minutes + ' ' + minuteText;
   } else if (minutes > 0) {
     text = minutes + ' ' + minuteText;
-    if (seconds > 0) text += 'and ' + seconds + ' ' + secondText;
+    if (seconds > 0) text += ' and ' + seconds + ' ' + secondText;
   } else {
     text = seconds + ' ' + secondText;
   }
