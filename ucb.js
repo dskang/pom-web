@@ -1,5 +1,4 @@
-var questions = require('./questions');
-var questionList = questions.list;
+var questions = require('./questions').list;
 
 var largePositiveNumber = 1000000000;
 var largeNegativeNumber = -1000000000;
@@ -58,8 +57,8 @@ var UCB1 = function(mongoData, conversationList, questionCallback) {
   // on the remaining conversations, then pick a random one from the 
   // large list
   if (typeof(mongoData) === "undefined") {
-    var randomIndex = Math.floor(Math.random()*questionList.length);
-    var randomQuestion = questionList[randomIndex];
+    var randomIndex = Math.floor(Math.random() * questions.length);
+    var randomQuestion = questions[randomIndex];
     questionCallback(randomQuestion);
     return;
   // otherwise, get all the available data for the questions and 
@@ -69,17 +68,18 @@ var UCB1 = function(mongoData, conversationList, questionCallback) {
     for (var i = 0; i < mongoData.length; i++) {
       mongoLookup[mongoData[i]["_id"]] = mongoData[i]["value"];
     }
-    for (var i = 0; i < questionList.length; i++) {
-      if (conversationList.indexOf(questionList[i]) !== -1) break;
-      if (typeof(mongoLookup[questionList[i]]) === "undefined") {
-        finalData[questionList[i]] = largePositiveNumber;
+    for (var i = 0; i < questions.length; i++) {
+      var question = questions[i];
+      if (conversationList.indexOf(question) !== -1) break;
+      if (typeof(mongoLookup[question]) === "undefined") {
+        finalData[question] = largePositiveNumber;
       // calculate UCB value for question
       } else {
         var probabilityEstimate = 
-        mongoLookup[questionList[i]].wins/mongoLookup[questionList[i]].plays;
+        mongoLookup[question].wins/mongoLookup[question].plays;
         var UCBoundEstimate = 
-        Math.sqrt(2*Math.log(mongoLookup["AllQuestions"].plays)/mongoLookup[questionList[i]].plays);
-        finalData[questionList[i]] = probabilityEstimate + UCBoundEstimate;
+        Math.sqrt(2 * Math.log(mongoLookup["AllQuestions"].plays) / mongoLookup[question].plays);
+        finalData[question] = probabilityEstimate + UCBoundEstimate;
       }
     }
   }

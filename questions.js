@@ -12,9 +12,9 @@ exports.list = [
   "What's the greatest invention of all time?",
   "Have you ever been admitted to the hospital?",
   "Have you ever had any brushes with the law?",
-  "Have you ever played a practical joke on anyone?",
-  "Have you ever been the recipient of a practical joke?",
-  "What would be your best achievement to date?",
+  "What's the best practical joke you've played on someone?",
+  "What's the best practical joke someone's pulled on you?",
+  "What is your best achievement to date?",
   "If you could live anywhere, where would it be?",
   "What's your favorite song?",
   "Do you like scary movies?",
@@ -78,7 +78,6 @@ exports.list = [
   "Who was your first crush?",
   "Do you believe in destiny, fate or free will?",
   "What's the most interesting thing you can see out of your nearest window?",
-  "Do you believe in love at first sight?",
   "What's the best decision you've made so far?",
   "Who would you want to be with on a desert island?",
   "If you had to pick a new name for a week, what would it be?",
@@ -132,4 +131,5 @@ exports.list = [
   "Do you sing in the shower?",
   "Before Princeton, what did you want to be when you grew up?",
   "What is your favorite time of the day?",
-  "What is your best childhood memory?"];
+  "What is your best childhood memory?"
+];
