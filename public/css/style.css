@@ -28,8 +28,8 @@
   text-shadow: 1px 1px 1px #000;
 }
 
-.centered button {
-  margin-top: 20px;
+.centered a {
+  margin: 20px 0;
 }
 
 .btn-xlg {
