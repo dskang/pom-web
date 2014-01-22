@@ -10,7 +10,7 @@ app.controller('TitleCtrl', function($scope, $window, messages) {
   };
 });
 
-app.controller('ChatCtrl', function($scope, $window, socket, messages, dropdown) {
+app.controller('ChatCtrl', function($scope, $window, socket, messages, dropdown, timer) {
   $scope.partnerName = 'Anonymous Tiger';
   $scope.messages = messages.get();
   $scope.state = null;
@@ -58,7 +58,6 @@ app.controller('ChatCtrl', function($scope, $window, socket, messages, dropdown)
     });
   });
 
-  var startWait;
   socket.on('waiting', function(data) {
     messages.add({
       type: 'system',
@@ -66,7 +65,7 @@ app.controller('ChatCtrl', function($scope, $window, socket, messages, dropdown)
     });
     $scope.state = 'waiting';
 
-    startWait = Date.now();
+    timer.start('waiting');
   });
 
   socket.on('matched', function(data) {
@@ -77,11 +76,10 @@ app.controller('ChatCtrl', function($scope, $window, socket, messages, dropdown)
     });
     $scope.state = 'chatting';
 
-    if (startWait) {
-      var endWait = Date.now();
-      var waitTime = Math.floor((endWait - startWait) / 1000);
+    if (timer.getTimer('waiting')) {
+      timer.stop('waiting');
       mixpanel.track('chat matched', {
-        waitTime: waitTime,
+        waitTime: timer.getDuration('waiting'),
         question: data.question
       });
     } else {

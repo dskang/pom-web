@@ -95,6 +95,7 @@ app.factory('dropdown', function($rootScope, socket, messages) {
         $rootScope.$apply(function() {
           messages.add({
             type: 'system',
+            important: true,
             template: 'fakeFacebook'
           });
         });
@@ -151,6 +152,40 @@ app.factory('dropdown', function($rootScope, socket, messages) {
       showDropdown = false;
       revealIdentity();
       mixpanel.track('dropdown accepted');
+    }
+  };
+});
+
+app.factory('timer', function() {
+  var timers = {};
+  return {
+    getTimer: function(label) {
+      return timers[label];
+    },
+    start: function(label) {
+      if (timers[label]) {
+        console.error("Cannot start timer '" + label + "'");
+      } else {
+        timers[label] = {
+          start: Date.now(),
+          end: null
+        };
+      }
+    },
+    stop: function(label) {
+      if (!timers[label] || timers[label].end) {
+        console.error("Cannot stop timer: '" + label + "'");
+      } else {
+        timers[label].end = Date.now();
+      }
+    },
+    getDuration: function(label) {
+      var timer = timers[label];
+      if (!timer || !timer.start || !timer.end) {
+        console.error("Cannot get duration of timer: '" + label + "'");
+      } else {
+        return Math.floor((timer.end - timer.start) / 1000);
+      }
     }
   };
 });
