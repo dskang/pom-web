@@ -152,6 +152,7 @@ exports.connectChatter = function(socket, userID) {
     user.pseudonym = 'Black';
 
     var partner = queue.shift();
+    partner.socket.removeListener('disconnect', removeFromQueue);
     user.partner = partner;
     partner.partner = user;
     conversation.user2 = partner;
@@ -159,8 +160,6 @@ exports.connectChatter = function(socket, userID) {
     partner.pseudonym = 'Origin';
 
     ucb.getQuestion(Conversation, user, partner, function(question) {
-      partner.socket.removeListener('disconnect', removeFromQueue);
-
       user.conversation.question = question;
       user.socket.emit('matched', {
         question: question

@@ -7,10 +7,9 @@ var largeNegativeNumber = -1000000000;
 * Implement UCB1 function to pick opening question
 ******************************************************************************/
 
-exports.getQuestion = function(dbHandle, user1, user2, questionCallback) {
-  dbHandle.distinct('question', 
-    {$or: [{'userID1': user1.id}, {'userID2': user1.id}, {'userID1': user2.id}, {'userID2': user2.id}]},
-    function (err, previouslyUsedConversations) {
+exports.getQuestion = function(collection, user1, user2, questionCallback) {
+  var query = {$or: [{userID1: user1.id}, {userID2: user1.id}, {userID1: user2.id}, {userID2: user2.id}]};
+  collection.distinct('question', query, function(err, previouslyUsedConversations) {
       var mapReduceQuery = {};
       mapReduceQuery.map = function() {
         if (this.user1Clicked && this.user2Clicked) {
@@ -34,17 +33,17 @@ exports.getQuestion = function(dbHandle, user1, user2, questionCallback) {
       };
 
       if (previouslyUsedConversations === null) {
-        dbHandle.mapReduce(mapReduceQuery, function(err, mongoData) {
+        collection.mapReduce(mapReduceQuery, function(err, mongoData) {
           UCB1(mongoData, [], questionCallback)
         });
       } else {
-        orQuery = []
+        var orQuery = [];
         for (var i = 0; i < previouslyUsedConversations.length; i++) {
-          orQuery.push({'question': previouslyUsedConversations[i]})
+          orQuery.push({question: previouslyUsedConversations[i]});
         }
-        mapReduceQuery.query = {$not: {$or: orQuery}}
-        dbHandle.mapReduce(mapReduceQuery, function(err, mongoData) {
-          UCB1(mongoData, previouslyUsedConversations, questionCallback)
+        mapReduceQuery.query = {$not: {$or: orQuery}};
+        collection.mapReduce(mapReduceQuery, function(err, mongoData) {
+          UCB1(mongoData, previouslyUsedConversations, questionCallback);
         });
       }
     });
@@ -53,17 +52,17 @@ exports.getQuestion = function(dbHandle, user1, user2, questionCallback) {
 var UCB1 = function(mongoData, conversationList, questionCallback) {
   var finalData = {};
 
-  // if there is are no unexplored conversations left, or no data
-  // on the remaining conversations, then pick a random one from the 
+  // if there are no unexplored conversations left, or no data
+  // on the remaining conversations, then pick a random one from the
   // large list
   if (typeof(mongoData) === "undefined") {
     var randomIndex = Math.floor(Math.random() * questions.length);
     var randomQuestion = questions[randomIndex];
     questionCallback(randomQuestion);
     return;
-  // otherwise, get all the available data for the questions and 
-  // run UCB on them
   } else {
+    // otherwise, get all the available data for the questions and
+    // run UCB on them
     var mongoLookup = {};
     for (var i = 0; i < mongoData.length; i++) {
       mongoLookup[mongoData[i]["_id"]] = mongoData[i]["value"];
@@ -73,12 +72,12 @@ var UCB1 = function(mongoData, conversationList, questionCallback) {
       if (conversationList.indexOf(question) !== -1) break;
       if (typeof(mongoLookup[question]) === "undefined") {
         finalData[question] = largePositiveNumber;
-      // calculate UCB value for question
       } else {
+        // calculate UCB value for question
         var probabilityEstimate = 
-        mongoLookup[question].wins/mongoLookup[question].plays;
-        var UCBoundEstimate = 
-        Math.sqrt(2 * Math.log(mongoLookup["AllQuestions"].plays) / mongoLookup[question].plays);
+          mongoLookup[question].wins/mongoLookup[question].plays;
+        var UCBoundEstimate =
+          Math.sqrt(2 * Math.log(mongoLookup["AllQuestions"].plays) / mongoLookup[question].plays);
         finalData[question] = probabilityEstimate + UCBoundEstimate;
       }
     }
