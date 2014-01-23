@@ -3,44 +3,6 @@
   display: none !important;
 }
 
-/* Landing page */
-.cover {
-  background: url(/img/bg.jpg) no-repeat center center fixed;
-  -webkit-background-size: cover;
-  -moz-background-size: cover;
-  -o-background-size: cover;
-  background-size: cover;
-}
-
-@media (min-width: 768px) {
-  .centered {
-    margin-top: 30%;
-  }
-}
-
-.centered {
-  text-align: center;
-}
-
-.centered h1 {
-  font-size: 43px;
-  color: #FFF;
-  text-shadow: 1px 1px 1px #000;
-}
-
-.centered a {
-  margin: 20px 0;
-}
-
-.btn-xlg {
-  padding: 18px 28px;
-  font-size: 22px;
-  line-height: normal;
-  -webkit-border-radius: 8px;
-  -moz-border-radius: 8px;
-  border-radius: 8px;
-}
-
 /*
  * Chatroom
  */
