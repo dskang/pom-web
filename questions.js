@@ -132,5 +132,7 @@ exports.list = [
   "What's something embarrassing that happened to you?",
   "If you could live in any city in the world, where would it be?",
   "Where do you want to travel to?",
-  "What's something spontaneous that you've done?"
+  "What's something spontaneous that you've done?",
+  "If you could only eat one food for the rest of your life, what would it be?",
+  "What's your favorite cuisine?"
 ];
