@@ -16,16 +16,20 @@ app.controller('ChatCtrl', function($scope, $window, socket, messages, dropdown,
   $scope.state = null;
   $scope.dropdown = dropdown;
 
+  var question;
+
   $scope.$watch('state', function(value) {
     if (value === 'chatting') {
       $window.onbeforeunload = function() {
         return 'Leaving this page will end your conversation.';
       };
       $window.onunload = function() {
+        // FIXME: send this information before the browser closes!
         timer.stop('chatting');
         mixpanel.track('chat ended', {
           quit: true,
           duration: timer.getDuration('chatting'),
+          question: question,
           messagesSent: messages.stats.sent,
           messagesReceived: messages.stats.received
         });
@@ -71,10 +75,11 @@ app.controller('ChatCtrl', function($scope, $window, socket, messages, dropdown,
   });
 
   socket.on('matched', function(data) {
+    question = data.question;
     messages.add({
       type: 'system',
       template: 'matched',
-      question: data.question
+      question: question
     });
     $scope.state = 'chatting';
     timer.start('chatting');
@@ -83,11 +88,11 @@ app.controller('ChatCtrl', function($scope, $window, socket, messages, dropdown,
       timer.stop('waiting');
       mixpanel.track('chat matched', {
         waitTime: timer.getDuration('waiting'),
-        question: data.question
+        question: question
       });
     } else {
       mixpanel.track('chat matched', {
-        question: data.question
+        question: question
       });
     }
   });
@@ -131,6 +136,7 @@ app.controller('ChatCtrl', function($scope, $window, socket, messages, dropdown,
     mixpanel.track('chat ended', {
       quit: false,
       duration: timer.getDuration('chatting'),
+      question: question,
       messagesSent: messages.stats.sent,
       messagesReceived: messages.stats.received
     });
