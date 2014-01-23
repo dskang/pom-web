@@ -18,17 +18,16 @@
   background-color: rgba(51, 51, 51, 0.5);
 }
 
-.centered {
-  text-align: center;
+.container {
+  color: #FFF;
 }
 
-.centered h1 {
+.hook {
   font-size: 43px;
-  color: #FFF;
   text-shadow: 1px 1px 1px #000;
 }
 
-.centered a {
+.go-btn {
   margin: 20px 0;
 }
 
@@ -39,4 +38,8 @@
   -webkit-border-radius: 8px;
   -moz-border-radius: 8px;
   border-radius: 8px;
+}
+
+.how-it-works h2 {
+  text-align: center;
 }
