@@ -135,13 +135,15 @@ exports.connectChatter = function(socket, userID) {
 
   socket.emit('entrance');
 
+  var removeFromQueue = function() {
+    queue.slice(queue.indexOf(user), 1);
+  };
+
   if (queue.length === 0) {
     queue.push(user);
     user.socket.emit('waiting');
 
-    user.socket.on('disconnect', function() {
-      queue.splice(queue.indexOf(user), 1);
-    });
+    user.socket.on('disconnect', removeFromQueue);
   } else {
     // Create conversation
     var conversation = new ConversationWrapper();
@@ -157,6 +159,8 @@ exports.connectChatter = function(socket, userID) {
     partner.pseudonym = 'Origin';
 
     ucb.getQuestion(Conversation, user, partner, function(question) {
+      partner.socket.removeListener('disconnect', removeFromQueue);
+
       user.conversation.question = question;
       user.socket.emit('matched', {
         question: question
