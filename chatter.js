@@ -136,7 +136,7 @@ exports.connectChatter = function(socket, userID) {
   socket.emit('entrance');
 
   var removeFromQueue = function() {
-    queue.slice(queue.indexOf(user), 1);
+    queue.splice(queue.indexOf(user), 1);
   };
 
   if (queue.length === 0) {
