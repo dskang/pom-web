@@ -45,14 +45,14 @@
                   </div>
                 </div>
                 <div ng-switch-when="selfRevealed">
-                  Thanks! You'll find out who your partner is if they want to find out who you are.
+                  You'll find out who your partner is if they want to find out who you are.
                 </div>
                 <div ng-switch-when="partnerRevealed">
                   Congratulations! Both parties want to find out who they've been chatting with.<br>
                   You've been chatting with: <a href="{{message.partnerLink}}" target="_blank">{{message.partnerName}}</a>
                 </div>
                 <div ng-switch-when="fakeFacebook">
-                  Unable to remove anonymization: Your Facebook account does not appear to be legitimate.
+                  Sorry, it looks like you're using a fake Facebook account.
                 </div>
                 <div ng-switch-when="finished">
                   {{partnerName}} has disconnected. Refresh the page to start another chat!
@@ -61,12 +61,11 @@
                   You have been disconnected.
                 </div>
                 <div ng-switch-when="error">
-                  Unable to connect. Please ensure the following:
+                  Sorry, we're unable to connect you. Please check the following:
                   <ol>
                     <li>You are using a computer connected to Princeton's network.</li>
                     <li>You are not already chatting with a user.</li>
                     <li>You are using a modern web browser that supports WebSockets.</li>
-                    <li>You have a working Internet connection.</li>
                   </ol>
                 </div>
                 <div ng-switch-default>
