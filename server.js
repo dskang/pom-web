@@ -52,13 +52,16 @@ io.configure('production', function() {
     var isValidIP = princeton.isValidIP(ipAddr);
     if (!isValidIP) {
       callback('Sorry, this site is only for Princeton students!', false);
+      return;
     }
+
     // Check if already connected to server
     if (ipAddr in connectedUsers) {
       callback('Sorry, you can only chat with one person at a time!', false);
-    } else {
-      callback(null, true);
+      return;
     }
+
+    callback(null, true);
   });
 });
 
