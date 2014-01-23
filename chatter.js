@@ -145,7 +145,6 @@ exports.connectChatter = function(socket, userID) {
 
     user.socket.on('disconnect', removeFromQueue);
   } else {
-    // Create conversation
     var conversation = new ConversationWrapper();
     conversation.user1 = user;
     user.conversation = conversation;
