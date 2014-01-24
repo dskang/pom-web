@@ -142,6 +142,7 @@ exports.connectChatter = function(socket, userID) {
   if (queue.length === 0) {
     queue.push(user);
     user.socket.emit('waiting');
+
     user.socket.on('disconnect', removeFromQueue);
   } else {
     var conversation = new ConversationWrapper();
