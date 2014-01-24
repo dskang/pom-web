@@ -68,40 +68,60 @@ app.factory('dropdown', function($rootScope, socket, messages) {
   var dropdownShown = false;
   var selfRevealed = false;
 
-  // Send the identity to the server
-  var sendIdentity = function() {
-    FB.api('/me', function(response) {
-      socket.emit('identity', {
-        name: response.name,
-        link: response.link
-      });
-      mixpanel.register({
-        gender: response.gender
-      });
-    });
+  var handleFbError = function() {
     $rootScope.$apply(function() {
       messages.add({
         type: 'system',
-        template: 'selfRevealed'
+        important: true,
+        template: 'fbError'
       });
+      showDropdown = true;
+      selfRevealed = false;
     });
-    mixpanel.track('self revealed');
+  };
+
+  // Send the identity to the server
+  var sendIdentity = function() {
+    FB.api('/me', function(response) {
+      if (!response || response.error) {
+        handleFbError();
+      } else {
+        socket.emit('identity', {
+          name: response.name,
+          link: response.link
+        });
+        mixpanel.register({
+          gender: response.gender
+        });
+        $rootScope.$apply(function() {
+          messages.add({
+            type: 'system',
+            template: 'selfRevealed'
+          });
+        });
+        mixpanel.track('self revealed');
+      }
+    });
   };
 
   // Verify that the Facebook account seems legitimate
   var verifyIdentity = function() {
     FB.api('/me/friends?limit=100', function(response) {
-      if (response.data.length > 50) {
-        sendIdentity();
+      if (!response || response.error) {
+        handleFbError();
       } else {
-        $rootScope.$apply(function() {
-          messages.add({
-            type: 'system',
-            important: true,
-            template: 'fakeFacebook'
+        if (response.data.length > 50) {
+          sendIdentity();
+        } else {
+          $rootScope.$apply(function() {
+            messages.add({
+              type: 'system',
+              important: true,
+              template: 'fbFake'
+            });
           });
-        });
-        mixpanel.track('facebook fake');
+          mixpanel.track('facebook fake');
+        }
       }
     });
   };

@@ -52,7 +52,10 @@
                   Congratulations! You get to find out your partner's identity!<br>
                   You've been chatting with: <a href="{{message.partnerLink}}" target="_blank">{{message.partnerName}}</a>
                 </div>
-                <div ng-switch-when="fakeFacebook">
+                <div ng-switch-when="fbError">
+                  Sorry, there was an error connecting to Facebook. Please try again.
+                </div>
+                <div ng-switch-when="fbFake">
                   Sorry, it looks like you're using a fake Facebook account.
                 </div>
                 <div ng-switch-when="finished">
