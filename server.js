@@ -35,6 +35,10 @@ app.get('/chat', function(req, res) {
   res.sendfile(__dirname + '/public/chat.html');
 });
 
+app.get('/faq', function(req, res) {
+  res.sendfile(__dirname + '/public/faq.html');
+})
+
 app.use(express.static(__dirname + '/public'));
 
 var connectedUsers = {};
