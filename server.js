@@ -91,15 +91,19 @@ function getValueFromCookie(name, cookie) {
 }
 
 io.sockets.on('connection', function(socket) {
-  // Add user to list of connected users
-  var ipAddr = getClientIP(socket.handshake);
-  connectedUsers[ipAddr] = true;
-  socket.on('disconnect', function() {
-    delete connectedUsers[ipAddr];
-  });
+  if (socket.handshake.headers.cookie) {
+    // Add user to list of connected users
+    var ipAddr = getClientIP(socket.handshake);
+    connectedUsers[ipAddr] = true;
+    socket.on('disconnect', function() {
+      delete connectedUsers[ipAddr];
+    });
 
-  var userID = getValueFromCookie('chatterID', socket.handshake.headers.cookie);
-  if (userID) {
-    chatter.connectChatter(socket, userID);
+    var userID = getValueFromCookie('chatterID', socket.handshake.headers.cookie);
+    if (userID) {
+      chatter.connectChatter(socket, userID);
+    }
+  } else {
+    console.log('No cookie!: ' + socket.handshake.headers);
   }
 });
