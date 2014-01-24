@@ -84,17 +84,11 @@ app.controller('ChatCtrl', function($scope, $window, socket, messages, dropdown,
     $scope.state = 'chatting';
     timer.start('chatting');
 
-    if (timer.getTimer('waiting')) {
-      timer.stop('waiting');
-      mixpanel.track('chat matched', {
-        waitTime: timer.getDuration('waiting'),
-        question: question
-      });
-    } else {
-      mixpanel.track('chat matched', {
-        question: question
-      });
-    }
+    timer.stop('waiting');
+    mixpanel.track('chat matched', {
+      waitTime: timer.getDuration('waiting'),
+      question: question
+    });
   });
 
   socket.on('chat message', function(data) {

@@ -133,7 +133,8 @@ var queue = new Array();
 exports.connectChatter = function(socket, userID) {
   var user = new User(socket, userID);
 
-  socket.emit('entrance');
+  user.socket.emit('entrance');
+  user.socket.emit('waiting');
 
   var removeFromQueue = function() {
     queue.splice(queue.indexOf(user), 1);
@@ -141,7 +142,6 @@ exports.connectChatter = function(socket, userID) {
 
   if (queue.length === 0) {
     queue.push(user);
-    user.socket.emit('waiting');
 
     user.socket.on('disconnect', removeFromQueue);
   } else {
