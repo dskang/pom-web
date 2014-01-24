@@ -105,7 +105,7 @@ app.controller('ChatCtrl', function($scope, $window, socket, messages, dropdown,
       text: data.message
     });
 
-    var threshold = 5; // FIXME
+    var threshold = 15; // FIXME
     if (!dropdown.previouslyShown() &&
         messages.stats.sent >= threshold &&
         messages.stats.received >= threshold) {
