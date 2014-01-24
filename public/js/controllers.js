@@ -10,7 +10,7 @@ app.controller('TitleCtrl', function($scope, $window, messages) {
   };
 });
 
-app.controller('ChatCtrl', function($scope, $window, socket, messages, dropdown, timer) {
+app.controller('ChatCtrl', function($scope, $window, socket, messages, dropdown, timer, DROPDOWN_THRESHOLD) {
   $scope.partnerName = 'Anonymous Tiger';
   $scope.messages = messages.get();
   $scope.state = null;
@@ -99,10 +99,9 @@ app.controller('ChatCtrl', function($scope, $window, socket, messages, dropdown,
       text: data.message
     });
 
-    var threshold = 15; // FIXME
     if (!dropdown.previouslyShown() &&
-        messages.stats.sent >= threshold &&
-        messages.stats.received >= threshold) {
+        messages.stats.sent >= DROPDOWN_THRESHOLD &&
+        messages.stats.received >= DROPDOWN_THRESHOLD) {
       dropdown.show();
     }
   });

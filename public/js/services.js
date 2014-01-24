@@ -1,3 +1,5 @@
+app.constant('DROPDOWN_THRESHOLD', 15);
+
 app.factory('socket', function ($rootScope) {
   var socket = io.connect(null, {
     reconnect: false
