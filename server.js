@@ -24,6 +24,11 @@ mongoose.connect(mongoUrl);
 
 app.use(express.cookieParser());
 
+
+app.get('/about', function(req, res) {
+  res.sendfile(__dirname + '/public/about.html');
+});
+
 app.get('/chat', function(req, res) {
   if (!req.cookies.chatterID) {
     crypto.pseudoRandomBytes(16, function(err, buff) {
