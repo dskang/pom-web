@@ -27,7 +27,7 @@ body {
 }
 
 @media (min-width: 960px) {
-  a.about {
+  a.about-link {
     display: inline;
   }
 }
@@ -84,7 +84,7 @@ body {
   text-align: center;
 }
 
-.about {
+.about-link {
   position: fixed;
   right: 10px;
   bottom: 10px;
@@ -92,7 +92,7 @@ body {
   display: none;
 }
 
-a.about:hover {
+a.about-link:hover {
   color: white;
   text-decoration: none;
 }
