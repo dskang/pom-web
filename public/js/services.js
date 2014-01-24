@@ -88,8 +88,8 @@ app.factory('dropdown', function($rootScope, socket, messages) {
 
   // Verify that the Facebook account seems legitimate
   var verifyIdentity = function() {
-    FB.api('/me/friends?limit=150', function(response) {
-      if (response.data.length > 100) {
+    FB.api('/me/friends?limit=100', function(response) {
+      if (response.data.length > 50) {
         sendIdentity();
       } else {
         $rootScope.$apply(function() {
