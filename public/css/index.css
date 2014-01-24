@@ -21,8 +21,8 @@ body {
   }
 
   .container.home {
-    margin-top: 10%;
-    margin-bottom: 10%;
+    margin-top: 3%;
+    margin-bottom: 3%;
   }
 }
 
@@ -45,6 +45,16 @@ body {
   font-size: 10em;
 }
 
+.padded-text {
+  margin-right: 10px;
+  margin-left: 10px;
+}
+
+.padded-icon {
+  padding-top: 20px;
+  margin-bottom: 0px;
+}
+
 .hook {
   font-size: 43px;
   text-shadow: 1px 1px 1px #000;
@@ -64,7 +74,8 @@ body {
 }
 
 .how-it-works {
-  margin-top: 25px;
+  margin-top: 10px;
+  margin-bottom: 10px;
 }
 
 .how-it-works h2 {
