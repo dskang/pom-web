@@ -44,6 +44,11 @@ app.use(express.static(__dirname + '/public'));
 
 var connectedUsers = {};
 
+app.get('/count', function(req, res) {
+  var count = Object.keys(connectedUsers).length;
+  res.send(count.toString());
+});
+
 io.configure('production', function() {
   io.enable('browser client minification');
   io.enable('browser client etag');
