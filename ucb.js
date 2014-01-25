@@ -8,93 +8,92 @@ var largeNegativeNumber = -1000000000;
 ******************************************************************************/
 
 exports.getQuestion = function(collection, user1, user2, questionCallback) {
-  var query = {$or: [{userID1: user1.id}, {userID2: user1.id}, {userID1: user2.id}, {userID2: user2.id}]};
-  collection.distinct('question', query, function(err, previouslyUsedConversations) {
-      var mapReduceQuery = {};
-      mapReduceQuery.map = function() {
-        if (this.user1Clicked && this.user2Clicked) {
-          emit(this.question, {plays:1, wins:1});
-          emit("AllQuestions", {plays: 1, wins: 1});
-        } else {
-          emit(this.question, {plays:1, wins:0});
-          emit("AllQuestions", {plays: 1, wins: 0});
-        }
-      };
+  // Returns true if the conversation includes either user1 or user2
+  var users = {
+    $or: [
+      {$eq: ["$userID1", user1.id]}, 
+      {$eq: ["$userID2", user1.id]}, 
+      {$eq: ["$userID1", user2.id]}, 
+      {$eq: ["$userID2", user2.id]}
+    ]
+  };
 
-      mapReduceQuery.reduce = function(k, v) {
-        var sum = 0.0;
-        var output = {plays: 0, wins: 0};
+  // Aggregation query object
+  var outputFormat = {
+    _id: "$question",
+    plays: {$sum: 1}, 
+    wins: {$sum: {$cond: [{$and: ["$user1Clicked", "$user2Clicked"]}, 1, 0]}},
+    timesShown: {$sum: {$cond: [users, 1, 0]}}
+  };
 
-        for (var i = 0; i < v.length; i++) {
-          output.plays += v[i].plays;
-          output.wins += v[i].wins;
-        }
-        return output;
-      };
+  // Aggregate conversation data and call UCB callback
+  collection.aggregate({$group: outputFormat}).exec(function(err, mongoData) {
+    if (err) console.log(err);
+    UCB1(mongoData, questionCallback);
+  });
+}
 
-      if (previouslyUsedConversations === null) {
-        collection.mapReduce(mapReduceQuery, function(err, mongoData) {
-          UCB1(mongoData, [], questionCallback)
-        });
-      } else {
-        var orQuery = [];
-        for (var i = 0; i < previouslyUsedConversations.length; i++) {
-          orQuery.push({question: previouslyUsedConversations[i]});
-        }
-        mapReduceQuery.query = {$not: {$or: orQuery}};
-        collection.mapReduce(mapReduceQuery, function(err, mongoData) {
-          UCB1(mongoData, previouslyUsedConversations, questionCallback);
-        });
-      }
-    });
-};
-
-var UCB1 = function(mongoData, conversationList, questionCallback) {
+var UCB1 = function(mongoData, questionCallback) {
   var finalData = {};
 
-  // if there are no unexplored conversations left, or no data
-  // on the remaining conversations, then pick a random one from the
-  // large list
-  if (typeof(mongoData) === "undefined") {
+  // If there's no data, return a random question
+  if (mongoData.length === 0) {
     var randomIndex = Math.floor(Math.random() * questions.length);
     var randomQuestion = questions[randomIndex];
     questionCallback(randomQuestion);
     return;
+  
+  // Otherwise, get all the available data for the questions and run UCB
   } else {
-    // otherwise, get all the available data for the questions and
-    // run UCB on them
     var mongoLookup = {};
+    var totalPlays = 0;
+
+    // For each entry in mongoData, sum the total number of plays and 
+    // populate the mongoLookup table with the corresponding question
     for (var i = 0; i < mongoData.length; i++) {
-      mongoLookup[mongoData[i]["_id"]] = mongoData[i]["value"];
+      mongoLookup[mongoData[i]["_id"]] = {
+        plays: mongoData[i]["plays"], 
+        wins: mongoData[i]["wins"], 
+        shown: (mongoData[i]["timesShown"] > 0 ? true : false)
+      };
+      totalPlays += mongoData[i]["plays"];
     }
+
     for (var i = 0; i < questions.length; i++) {
       var question = questions[i];
-      if (conversationList.indexOf(question) !== -1) break;
+
+      // If there's no data for this question, then it hasn't been 
+      // displayed yet, so assign it an arbitrarily large UCB value
       if (typeof(mongoLookup[question]) === "undefined") {
         finalData[question] = largePositiveNumber;
+
+      // If the question has already been shown, skip it
+      } else if (mongoLookup[question].shown) { 
+        continue; 
+
+      // If the question hasn't been shown and there's data for it, 
+      // compute the UCB value
       } else {
-        // calculate UCB value for question
         var probabilityEstimate = 
           mongoLookup[question].wins/mongoLookup[question].plays;
-        var UCBoundEstimate =
-          Math.sqrt(2 * Math.log(mongoLookup["AllQuestions"].plays) / mongoLookup[question].plays);
+        var UCBoundEstimate = 
+          Math.sqrt(2 * Math.log(totalPlays / mongoLookup[question].plays));
         finalData[question] = probabilityEstimate + UCBoundEstimate;
       }
     }
-  }
 
-  // initialize running max variables
-  var bestValue = largeNegativeNumber;
-  var bestMatch = null;
-
-  for (var i = 0; i < conversationList.length; i++) {
-    var currentValue = finalData[conversationList[i]];
-    if (currentValue >= bestValue) {
-      bestMatch = conversationList[i];
-      bestValue = currentValue;
+    // Find question with max UCB value
+    var bestValue = largeNegativeNumber;
+    var bestMatch = null;
+    for (var question in finalData) {
+      var currentValue = finalData[question];
+      if (currentValue >= bestValue) {
+        bestMatch = question;
+        bestValue = currentValue;
+      }
     }
-  }
 
-  // return best match question with UCB
-  questionCallback(bestMatch);
-};
+    // Return best match question with UCB
+    questionCallback(bestMatch);
+  }
+}
