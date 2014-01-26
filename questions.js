@@ -67,7 +67,7 @@ exports.list = [
   "What's the craziest thing you've ever done for someone?",
   "What's the best piece of advice anyone has ever given you?",
   "Do you have a Princeton bucket list?",
-  "What's your favorite memory at Princeton?"
+  "What's your favorite memory at Princeton?",
   "What building would you donate to Princeton?",
   "What is one thing you always wanted as a kid, but never got?",
   "What is the nicest thing someone else has done for you?",
