@@ -30,6 +30,7 @@ body {
   background-color: rgba(0, 0, 0, 0.8);
   color: #FFF;
   padding: 30px;
+  padding-bottom: 15px;
 }
 
 .header {
@@ -78,10 +79,14 @@ body {
   text-align: center;
 }
 
+.footer-text {
+  margin-top:15px;
+}
+
 .about-link {
   color: white;
   position: relative;
-  top: 10px;
+  margin-top: 10px;
 }
 
 a.about-link:hover {
