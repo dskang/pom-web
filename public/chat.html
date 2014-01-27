@@ -13,13 +13,13 @@
     <div class="nav">
       <div class="nav-container">
         <span class="brand" href="/">Tigers Anonymous</span>
-        <div class="volume" ng-click="playSound = !playSound" ng-cloak>
+        <a class="volume" ng-click="playSound = !playSound" ng-cloak>
           <i class="fa fa-volume-up" ng-show="playSound"></i>
           <i class="fa fa-volume-off" ng-show="!playSound"></i>
-        </div>
-        <div class="circle-down" ng-show="dropdown.shouldShowMinimized() && state == 'chatting'" ng-click="dropdown.show()" ng-cloak>
+        </a>
+        <a class="circle-down" ng-show="dropdown.shouldShowMinimized() && state == 'chatting'" ng-click="dropdown.show()" ng-cloak>
           <i class="fa fa-chevron-circle-down"></i>
-        </div>
+        </a>
       </div>
     </div>
     <div class="chat-container">
