@@ -1,12 +1,39 @@
-app.controller('TitleCtrl', function($scope, $window, messages) {
+app.controller('TitleCtrl', function($scope, $window, $interval, messages) {
   var originalTitle = $window.document.title;
-  $scope.getTitle = function() {
-    var title = originalTitle;
-    var numUnread = messages.stats.unread;
-    if (numUnread > 0) {
-      title = '(' + numUnread + ') ' + title;
-    }
+  var getParenTitle = function(unread) {
+    return '(' + unread + ') ' + originalTitle;
+  };
+  var getUnreadTitle = function(unread) {
+    var title = unread + ' new message';
+    if (unread > 1) title += 's';
     return title;
+  };
+
+  var currentTitle = getParenTitle;
+  var toggleTitle = function() {
+    if (currentTitle === getParenTitle) {
+      currentTitle = getUnreadTitle;
+    } else {
+      currentTitle = getParenTitle;
+    }
+  };
+
+  var toggle;
+  $scope.getTitle = function() {
+    var unread = messages.stats.unread;
+    if (unread > 0) {
+      if (!angular.isDefined(toggle)) {
+        toggle = $interval(toggleTitle, 1000);
+      }
+      return currentTitle(unread);
+    } else {
+      if (angular.isDefined(toggle)) {
+        $interval.cancel(toggle);
+        toggle = undefined;
+        currentTitle = getParenTitle;
+      };
+      return originalTitle;
+    }
   };
 });
 
