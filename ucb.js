@@ -3,13 +3,9 @@ var questions = require('./questions').list;
 var largePositiveNumber = 1000000000;
 var largeNegativeNumber = -1000000000;
 
-/******************************************************************************
-* Implement UCB1 function to pick opening question
-******************************************************************************/
-
-exports.getQuestion = function(collection, user1, user2, questionCallback) {
-  // Returns true if the conversation includes either user1 or user2
-  var users = {
+// UCB1 function to pick opening question
+exports.getQuestion = function(collection, user1, user2, callback) {
+  var questionAsked = {
     $or: [
       {$eq: ["$userID1", user1.id]}, 
       {$eq: ["$userID2", user1.id]}, 
@@ -18,82 +14,82 @@ exports.getQuestion = function(collection, user1, user2, questionCallback) {
     ]
   };
 
-  // Aggregation query object
   var outputFormat = {
     _id: "$question",
-    plays: {$sum: 1}, 
+    plays: {$sum: 1},
     wins: {$sum: {$cond: [{$and: ["$user1Clicked", "$user2Clicked"]}, 1, 0]}},
-    timesShown: {$sum: {$cond: [users, 1, 0]}}
+    timesShown: {$sum: {$cond: [questionAsked, 1, 0]}}
   };
 
   // Aggregate conversation data and call UCB callback
-  collection.aggregate({$group: outputFormat}).exec(function(err, mongoData) {
+  collection.aggregate().group(outputFormat).exec(function(err, data) {
     if (err) console.log(err);
-    UCB1(mongoData, questionCallback);
+    UCB1(data, callback);
   });
 }
 
-var UCB1 = function(mongoData, questionCallback) {
+var getRandomQuestion = function() {
+  var randomIndex = Math.floor(Math.random() * questions.length);
+  return questions[randomIndex];
+};
+
+var UCB1 = function(data, callback) {
   var finalData = {};
 
   // If there's no data, return a random question
-  if (mongoData.length === 0) {
-    var randomIndex = Math.floor(Math.random() * questions.length);
-    var randomQuestion = questions[randomIndex];
-    questionCallback(randomQuestion);
+  if (data.length === 0) {
+    callback(getRandomQuestion());
     return;
-  
-  // Otherwise, get all the available data for the questions and run UCB
   } else {
-    var mongoLookup = {};
+    // Otherwise, get all the available data for the questions and run UCB
+    var questionStats = {};
     var totalPlays = 0;
 
-    // For each entry in mongoData, sum the total number of plays and 
-    // populate the mongoLookup table with the corresponding question
-    for (var i = 0; i < mongoData.length; i++) {
-      mongoLookup[mongoData[i]["_id"]] = {
-        plays: mongoData[i]["plays"], 
-        wins: mongoData[i]["wins"], 
-        shown: (mongoData[i]["timesShown"] > 0 ? true : false)
+    // For each entry in data, sum the total number of plays and
+    // populate the questionStats table with the corresponding question
+    for (var i = 0; i < data.length; i++) {
+      var entry = data[i];
+      questionStats[entry._id] = {
+        plays: entry.plays,
+        wins: entry.wins,
+        shown: (entry.timesShown > 0 ? true : false)
       };
-      totalPlays += mongoData[i]["plays"];
+      totalPlays += entry.plays;
     }
 
     for (var i = 0; i < questions.length; i++) {
       var question = questions[i];
-
-      // If there's no data for this question, then it hasn't been 
+      // If there's no data for this question, then it hasn't been
       // displayed yet, so assign it an arbitrarily large UCB value
-      if (typeof(mongoLookup[question]) === "undefined") {
+      if (!questionStats[question]) {
         finalData[question] = largePositiveNumber;
-
-      // If the question has already been shown, skip it
-      } else if (mongoLookup[question].shown) { 
-        continue; 
-
-      // If the question hasn't been shown and there's data for it, 
-      // compute the UCB value
+      } else if (questionStats[question].shown) {
+        continue;
       } else {
-        var probabilityEstimate = 
-          mongoLookup[question].wins/mongoLookup[question].plays;
-        var UCBoundEstimate = 
-          Math.sqrt(2 * Math.log(totalPlays / mongoLookup[question].plays));
+        // If the question hasn't been shown and there's data for it,
+        // compute the UCB value
+        var probabilityEstimate =
+          questionStats[question].wins / questionStats[question].plays;
+        var UCBoundEstimate =
+          Math.sqrt(2 * Math.log(totalPlays / questionStats[question].plays));
         finalData[question] = probabilityEstimate + UCBoundEstimate;
       }
     }
 
-    // Find question with max UCB value
-    var bestValue = largeNegativeNumber;
-    var bestMatch = null;
-    for (var question in finalData) {
-      var currentValue = finalData[question];
-      if (currentValue >= bestValue) {
-        bestMatch = question;
-        bestValue = currentValue;
+    if (Object.keys(finalData).length > 0) {
+      // Find question with max UCB value
+      var bestValue = largeNegativeNumber;
+      var bestMatch = null;
+      for (var question in finalData) {
+        var currentValue = finalData[question];
+        if (currentValue >= bestValue) {
+          bestMatch = question;
+          bestValue = currentValue;
+        }
       }
+      callback(bestMatch);
+    } else {
+      callback(getRandomQuestion());
     }
-
-    // Return best match question with UCB
-    questionCallback(bestMatch);
   }
-}
+};
