@@ -4,6 +4,7 @@
     <title ng-bind="getTitle()">Tigers Anonymous</title>
     <link rel="icon" href="img/favicon.ico" type="image/x-icon">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <link href="//netdna.bootstrapcdn.com/font-awesome/4.0.3/css/font-awesome.css" rel="stylesheet">
     <link href="css/chat.css" rel="stylesheet" type="text/css" media="all">
   </head>
   <body ng-controller="ChatCtrl">
@@ -12,6 +13,10 @@
     <div class="nav">
       <div class="nav-container">
         <span class="brand" href="/">Tigers Anonymous</span>
+        <div class="volume" ng-click="playSound = !playSound" ng-cloak>
+          <i class="fa fa-volume-up" ng-show="playSound"></i>
+          <i class="fa fa-volume-off" ng-show="!playSound"></i>
+        </div>
         <a class="circle" ng-show="dropdown.shouldShowMinimized() && state == 'chatting'" ng-click="dropdown.show()" ng-cloak></a>
       </div>
     </div>

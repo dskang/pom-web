@@ -42,6 +42,7 @@ app.controller('ChatCtrl', function($scope, $window, socket, messages, dropdown,
   $scope.messages = messages.get();
   $scope.state = null;
   $scope.dropdown = dropdown;
+  $scope.playSound = true;
 
   var question;
 

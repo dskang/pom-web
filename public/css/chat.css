@@ -69,6 +69,16 @@ body {
   border: 1px solid #000;
 }
 
+.volume {
+  position: absolute;
+  left: 10px;
+  display: inline-block;
+  font-size: 1.6em;
+  width: 30px;
+  text-align: left;
+  cursor: pointer;
+}
+
 /* Dropdown */
 .dropdown {
   z-index: 1;

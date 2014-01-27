@@ -51,7 +51,7 @@ app.directive('pomFocusOnChat', function($timeout) {
 app.directive('pomPlayOnMessage', function($window) {
   return function(scope, element) {
     scope.$watch('messages.length', function(length) {
-      if (!$window.document.hasFocus()) {
+      if (scope.playSound && !$window.document.hasFocus()) {
         if (length === 0) return;
         var msg = scope.messages[length - 1];
         if (msg.type === 'chat' && msg.name !== 'You') {
