@@ -17,7 +17,9 @@
           <i class="fa fa-volume-up" ng-show="playSound"></i>
           <i class="fa fa-volume-off" ng-show="!playSound"></i>
         </div>
-        <a class="circle" ng-show="dropdown.shouldShowMinimized() && state == 'chatting'" ng-click="dropdown.show()" ng-cloak></a>
+        <div class="circle-down" ng-show="dropdown.shouldShowMinimized() && state == 'chatting'" ng-click="dropdown.show()" ng-cloak>
+          <i class="fa fa-chevron-circle-down"></i>
+        </div>
       </div>
     </div>
     <div class="chat-container">
@@ -27,7 +29,7 @@
         </div>
         <div class="options">
           <button type="button" class="yes-btn" ng-click="dropdown.accept()">Yes</button>
-          <button type="button" class="no-btn" ng-click="dropdown.hide()">Not now</button>
+          <button type="button" class="hide-btn" ng-click="dropdown.hide()">Hide</button>
         </div>
       </div>
       <div class="chatroom" pom-scroll-glue>

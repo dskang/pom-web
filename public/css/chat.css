@@ -55,20 +55,12 @@ body {
   position: relative;
 }
 
-.circle {
+.circle-down {
   position: absolute;
-  right: 0;
-  cursor: pointer;
-  box-sizing: border-box;
-  -moz-box-sizing: border-box;
-  float: right;
+  right: 10px;;
   display: inline-block;
-  border-radius: 50%;
-  width: 18px;
-  height: 18px;
-  margin: 16px;
-  background-color: #5CB85C;
-  border: 1px solid #000;
+  font-size: 1.6em;
+  cursor: pointer;
 }
 
 .volume {
@@ -115,7 +107,7 @@ body {
   margin: 5px 10px;
 }
 
-.yes-btn, .no-btn {
+.yes-btn, .hide-btn {
   width: 130px;
   display: inline-block;
   padding: 6px 12px;
@@ -147,13 +139,13 @@ body {
   border-color: #398439;
 }
 
-.no-btn {
+.hide-btn {
   color: #FFF;
   background-color: #D9534F;
   border-color: #D43F3A;
 }
 
-.no-btn:hover {
+.hide-btn:hover {
   color: #FFF;
   background-color: #D2322D;
   border-color: #AC2925;
