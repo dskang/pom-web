@@ -46,7 +46,15 @@ app.controller('ChatCtrl', function($scope, $window, socket, messages, dropdown,
   var question;
 
   $scope.$watch('state', function(value) {
-    if (value === 'chatting') {
+    if (value === 'waiting') {
+      // FIXME: send this information before the browser closes!
+      $window.onbeforeunload = function() {
+        timer.stop('waiting');
+        mixpanel.track('quit without match', {
+          waitTime: timer.getDuration('waiting')
+        });
+      };
+    } else if (value === 'chatting') {
       $window.onbeforeunload = function() {
         return 'Leaving this page will end your conversation.';
       };
