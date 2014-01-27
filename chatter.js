@@ -136,14 +136,16 @@ exports.connectChatter = function(socket, userID) {
   user.socket.emit('entrance');
   user.socket.emit('waiting');
 
-  var removeFromQueue = function() {
-    queue.splice(queue.indexOf(user), 1);
-  };
-
   if (queue.length === 0) {
     queue.push(user);
 
-    user.socket.on('disconnect', removeFromQueue);
+    // TODO: remove listener instead of checking index
+    user.socket.on('disconnect', function() {
+      var index = queue.indexOf(user);
+      if (index !== -1) {
+        queue.splice(index, 1);
+      }
+    });
   } else {
     var conversation = new ConversationWrapper();
     conversation.user1 = user;
@@ -151,7 +153,6 @@ exports.connectChatter = function(socket, userID) {
     user.pseudonym = 'Origin';
 
     var partner = queue.shift();
-    partner.socket.removeListener('disconnect', removeFromQueue);
     user.partner = partner;
     partner.partner = user;
     conversation.user2 = partner;
