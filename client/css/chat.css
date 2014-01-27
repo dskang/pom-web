@@ -105,6 +105,16 @@ body {
 .question, .options {
   display: inline-block;
   margin: 5px 10px;
+  vertical-align: middle;
+}
+
+.question {
+  line-height: 1.2;
+}
+
+.question .promise {
+  font-size: 15px;
+  color: #777;
 }
 
 .yes-btn, .hide-btn {
