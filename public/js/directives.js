@@ -7,12 +7,12 @@ app.directive('pomScrollGlue', function() {
       el.scrollTop = el.scrollHeight;
     }
 
-    function shouldActivateAutoScroll() {
+    function isScrolledToBottom() {
       return el.scrollTop + el.clientHeight >= el.scrollHeight;
     };
 
     element.bind('scroll', function() {
-      shouldScroll = shouldActivateAutoScroll();
+      shouldScroll = isScrolledToBottom();
     });
 
     scope.$watch(function() {
