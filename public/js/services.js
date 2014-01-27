@@ -173,7 +173,10 @@ app.factory('dropdown', function($rootScope, socket, messages) {
     accept: function() {
       showDropdown = false;
       revealIdentity();
-      mixpanel.track('dropdown accepted');
+      mixpanel.track('dropdown accepted', {
+        messagesSent: messages.stats.sent,
+        messagesReceived: messages.stats.received
+      });
     }
   };
 });
