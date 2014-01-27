@@ -1,4 +1,4 @@
-app.directive('pomScrollGlue', function() {
+app.directive('pomScrollGlue', function($timeout) {
   return function(scope, element) {
     var el = element[0];
     var shouldScroll = true;
@@ -18,6 +18,19 @@ app.directive('pomScrollGlue', function() {
     scope.$watch(function() {
       if (shouldScroll) {
         scrollToBottom();
+      }
+    });
+
+    // scroll to bottom if user sends message or receives system message
+    scope.$watch('messages.length', function(length) {
+      if (length === 0) return;
+      var msg = scope.messages[length - 1];
+      var sentMessage = (msg.type === 'chat' && msg.name === 'You');
+      var receivedSystemMessage = msg.type === 'system';
+      if (sentMessage || receivedSystemMessage) {
+        $timeout(function() {
+          scrollToBottom();
+        });
       }
     });
   };
