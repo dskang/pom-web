@@ -79,16 +79,14 @@ body {
   text-align: center;
 }
 
-.footer-text {
+.footer {
   margin-top: 15px;
 }
 
-.about-link {
+.footer a {
   color: white;
-  margin-top: 10px;
 }
 
-a.about-link:hover {
-  color: white;
+.footer a:hover {
   text-decoration: none;
 }
