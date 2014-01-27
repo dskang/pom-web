@@ -15,10 +15,12 @@
     "grunt": "~0.4.2",
     "grunt-rev": "~0.1.0",
     "grunt-usemin": "~2.0.2",
+    "grunt-contrib-clean": "~0.5.0",
     "grunt-contrib-concat": "~0.3.0",
     "grunt-contrib-uglify": "~0.3.2",
     "grunt-contrib-copy": "~0.5.0",
-    "grunt-ngmin": "0.0.3"
+    "grunt-ngmin": "0.0.3",
+    "load-grunt-tasks": "~0.3.0"
   },
   "scripts": {
     "postinstall": "./node_modules/.bin/grunt"

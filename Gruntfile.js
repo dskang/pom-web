@@ -1,24 +1,31 @@
 module.exports = function(grunt) {
 
+  require('load-grunt-tasks')(grunt);
+
   grunt.initConfig({
+    pom: {
+      app: 'client',
+      dist: 'public'
+    },
+
     // TODO: use rev for cache busting
     rev: {
       assets: {
         files: {
-          src: ['public/js/*.js']
+          src: ['<%= pom.dist %>/js/*.js']
         }
       }
-    }, 
+    },
 
     useminPrepare: {
-      html: 'client/chat.html',
+      html: '<%= pom.app %>/chat.html',
       options: {
-        dest: 'public'
+        dest: '<%= pom.dist %>'
       }
     },
 
     usemin: {
-      html: 'public/chat.html'
+      html: '<%= pom.dist %>/chat.html'
     },
 
     ngmin: {
@@ -37,8 +44,8 @@ module.exports = function(grunt) {
         files: [{
           expand: true,
           dot: true,
-          cwd: 'client',
-          dest: 'public',
+          cwd: '<%= pom.app %>',
+          dest: '<%= pom.dist %>',
           src: [
             'audio/*',
             'css/*',
@@ -47,17 +54,24 @@ module.exports = function(grunt) {
           ]
         }]
       }
+    },
+
+    clean: {
+      dist: {
+        files: [{
+          dot: true,
+          src: [
+            '.tmp',
+            '<%= pom.dist %>/*'
+          ]
+        }]
+      }
     }
+
   });
 
-  grunt.loadNpmTasks('grunt-rev');
-  grunt.loadNpmTasks('grunt-usemin');
-  grunt.loadNpmTasks('grunt-ngmin');
-  grunt.loadNpmTasks('grunt-contrib-copy');
-  grunt.loadNpmTasks('grunt-contrib-concat');
-  grunt.loadNpmTasks('grunt-contrib-uglify');
-
   grunt.registerTask('default', [
+    'clean:dist',
     'useminPrepare',
     'concat',
     'ngmin',
