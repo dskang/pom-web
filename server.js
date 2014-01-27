@@ -1,12 +1,12 @@
-var express = require('express'),
+var crypto = require('crypto'),
+    express = require('express'),
     app = express(),
     server = require('http').createServer(app),
     io = require('socket.io').listen(server),
-    princeton = require('./princeton'),
     mongoose = require('mongoose'),
-    conversation = require('./conversation'),
-    chatter = require('./chatter.js'),
-    crypto = require('crypto');
+    princeton = require('./server/princeton'),
+    conversation = require('./server/conversation'),
+    chatter = require('./server/chatter.js');
 
 var port = process.env.PORT || 3000;
 server.listen(port);
