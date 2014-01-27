@@ -62,8 +62,8 @@ var formatConversation = function(conversation) {
 
 var formatConversationMetadata = function(conversation) {
   var data = [
-    'User 1: ' + conversation.user1.id + ' (Origin)',
-    'User 2: ' + conversation.user2.id + ' (Black)',
+    'User 1: ' + conversation.user1.id + ' (' + conversation.user1.pseudonym + ')',
+    'User 2: ' + conversation.user2.id + ' (' + conversation.user2.pseudonym + ')',
     'Question: ' + conversation.question,
     'Start time: ' + formatDate(conversation.startTime),
     'End time: ' + formatDate(conversation.endTime),
