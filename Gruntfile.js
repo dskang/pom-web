@@ -70,7 +70,7 @@ module.exports = function(grunt) {
 
     watch: {
       client: {
-        files: '<%= pom.app %>/*',
+        files: '<%= pom.app %>/{,*/}*',
         tasks: 'default'
       }
     }
