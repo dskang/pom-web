@@ -243,11 +243,11 @@ textarea {
 
 @media (max-width: 768px) {
   .chatroom {
-    bottom: 53px;
+    bottom: 77px;
   }
 
   .input {
-    height: 53px;
+    height: 77px;
     padding: 0;
   }
 
