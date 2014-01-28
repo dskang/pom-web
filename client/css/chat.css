@@ -171,6 +171,7 @@ body {
   overflow: auto;
   padding: 20px;
   line-height: 1.8;
+  word-wrap: break-word;
 }
 
 .chatroom ul {
@@ -253,6 +254,8 @@ textarea {
   }
 
   textarea {
+    border: none;
+    border-top: 1px solid #000;
     border-radius: 0;
   }
 }
