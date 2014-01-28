@@ -216,7 +216,7 @@ body {
 }
 
 /* Input */
-.input {
+.input-wrapper {
   z-index: 3; /* for mobile */
   position: absolute;
   bottom: 0;
@@ -244,9 +244,10 @@ textarea {
 @media (max-width: 768px) {
   .chatroom {
     bottom: 77px;
+    /* should be 54px, but 77px avoids typing delay bug in ios safari */
   }
 
-  .input {
+  .input-wrapper {
     height: 77px;
     padding: 0;
   }
