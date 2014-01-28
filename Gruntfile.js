@@ -66,6 +66,13 @@ module.exports = function(grunt) {
           ]
         }]
       }
+    },
+
+    watch: {
+      client: {
+        files: '<%= pom.app %>/*',
+        tasks: 'default'
+      }
     }
 
   });
@@ -78,6 +85,11 @@ module.exports = function(grunt) {
     'copy:dist',
     'uglify',
     'usemin'
+  ]);
+
+  grunt.registerTask('dev', [
+    'default',
+    'watch'
   ]);
 
 };
