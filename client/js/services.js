@@ -1,9 +1,15 @@
 app.constant('DROPDOWN_THRESHOLD', 15);
 
-app.factory('socket', function ($rootScope) {
-  var socket = io.connect(null, {
+app.factory('socket', function($rootScope, $location) {
+  var options = {
     reconnect: false
-  });
+  };
+  var socket;
+  if ($location.host() === 'localhost') {
+    socket = io.connect('http://localhost:5000');
+  } else {
+    socket = io.connect('http://socket.tigersanonymous.com');
+  }
   return {
     on: function (eventName, callback) {
       socket.on(eventName, function () {  
