@@ -1,18 +1,23 @@
 app.constant('DROPDOWN_THRESHOLD', 15);
 
-app.factory('socket', function($rootScope, $location) {
-  var options = {
-    reconnect: false
-  };
-  var socket;
-  if ($location.host() === 'localhost') {
-    socket = io.connect('http://localhost:5000', options);
+app.factory('socketUrl', function($location) {
+  var socketUrl;
+  var splitHost = $location.host().split('.');
+  if (splitHost.length > 1) {
+    socketUrl = 'http://socket.' + splitHost.slice(-2).join('.');
   } else {
-    socket = io.connect('http://socket.tigersanonymous.com', options);
+    socketUrl = 'http://localhost:5000';
   }
+  return socketUrl;
+});
+
+app.factory('socket', function($rootScope, socketUrl) {
+  var socket = io.connect(socketUrl, {
+    reconnect: false
+  });
   return {
     on: function (eventName, callback) {
-      socket.on(eventName, function () {  
+      socket.on(eventName, function () {
         var args = arguments;
         $rootScope.$apply(function () {
           callback.apply(socket, args);
