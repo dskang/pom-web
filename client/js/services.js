@@ -6,9 +6,9 @@ app.factory('socket', function($rootScope, $location) {
   };
   var socket;
   if ($location.host() === 'localhost') {
-    socket = io.connect('http://localhost:5000');
+    socket = io.connect('http://localhost:5000', options);
   } else {
-    socket = io.connect('http://socket.tigersanonymous.com');
+    socket = io.connect('http://socket.tigersanonymous.com', options);
   }
   return {
     on: function (eventName, callback) {
