@@ -13,13 +13,16 @@ app.get('/about', function(req, res) {
   res.sendfile(__dirname + '/public/about.html');
 });
 
-var cookieDomain;
-app.configure('production', function() {
-  cookieDomain = '.tigersanonymous.com';
-});
-
 app.get('/chat', function(req, res) {
   if (!req.cookies.chatterID) {
+    // Determine domain
+    var cookieDomain;
+    var splitHost = req.get('host').split('.');
+    if (splitHost.length > 1) {
+      cookieDomain = '.' + splitHost.slice(-2).join('.');
+    }
+
+    // Set cookie
     crypto.pseudoRandomBytes(16, function(err, buff) {
      res.cookie('chatterID', buff.toString('hex'), {
        maxAge: 60*60*24*356*1000,
