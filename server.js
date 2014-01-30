@@ -14,7 +14,7 @@ app.get('/about', function(req, res) {
 });
 
 app.get('/chat', function(req, res) {
-  if (!req.cookies.chatterID) {
+  if (true || !req.cookies.chatterID) {
     // Determine domain
     var cookieDomain;
     var splitHost = req.get('host').split('.');
