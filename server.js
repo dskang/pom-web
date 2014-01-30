@@ -14,7 +14,7 @@ app.get('/about', function(req, res) {
 });
 
 app.get('/chat', function(req, res) {
-  if (true || !req.cookies.chatterID) {
+  if (!req.cookies.userID) {
     // Determine domain
     var cookieDomain;
     var splitHost = req.get('host').split('.');
@@ -24,7 +24,7 @@ app.get('/chat', function(req, res) {
 
     // Set cookie
     crypto.pseudoRandomBytes(16, function(err, buff) {
-     res.cookie('chatterID', buff.toString('hex'), {
+     res.cookie('userID', buff.toString('hex'), {
        maxAge: 60*60*24*356*1000,
        domain: cookieDomain
      });
