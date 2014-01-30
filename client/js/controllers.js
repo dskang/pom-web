@@ -181,9 +181,9 @@ app.controller('ChatCtrl', function($scope, $window, socket, messages, dropdown,
         important: true,
         template: 'disconnected'
       });
+      mixpanel.track('disconnected');
     }
     $scope.state = 'disconnected';
-    mixpanel.track('disconnected');
   });
 
   $scope.sendMessage = function(e) {
