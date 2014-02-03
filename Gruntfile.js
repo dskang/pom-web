@@ -72,6 +72,18 @@ module.exports = function(grunt) {
       client: {
         files: '<%= pom.app %>/{,*/}*',
         tasks: 'default'
+      },
+      gruntfile: {
+        files: ['Gruntfile.js']
+      },
+      livereload: {
+        options: {
+          livereload: true
+        },
+        files: [
+          '<%= pom.app %>/*.html',
+          '<%= pom.app %>/css/*.css'
+        ]
       }
     }
 

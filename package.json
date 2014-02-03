@@ -23,5 +23,8 @@
   },
   "scripts": {
     "postinstall": "./node_modules/.bin/grunt"
+  },
+  "devDependencies": {
+    "connect-livereload": "~0.3.2"
   }
 }

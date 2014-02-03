@@ -7,6 +7,13 @@ var port = process.env.PORT || 3000;
 app.listen(port);
 console.log('Express listening on port ' + port);
 
+app.configure('development', function() {
+  var liveReloadPort = 35729;
+  app.use(require('connect-livereload')({
+    port: liveReloadPort
+  }));
+});
+
 app.use(express.cookieParser());
 
 app.get('/about', function(req, res) {
