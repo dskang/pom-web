@@ -164,6 +164,12 @@ app.controller('ChatCtrl', function($scope, $window, socket, messages, dropdown,
     });
     $scope.state = 'finished';
 
+    messages.add({
+      type: 'system',
+      important: false,
+      template: 'feedback'
+    });
+
     timer.stop('chatting');
     mixpanel.track('chat ended', {
       quit: false,
