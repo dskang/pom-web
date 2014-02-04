@@ -69,13 +69,9 @@ module.exports = function(grunt) {
     },
 
     watch: {
-      js: {
-        files: '<%= pom.app %>/js/*.js',
+      client: {
+        files: '<%= pom.app %>/{,*/}*',
         tasks: 'default'
-      },
-      other: {
-        files: ['<%= pom.app %>/**/*.{!js}', '<%= pom.app %>/*.html'],
-        tasks: 'non-js'
       },
       gruntfile: {
         files: ['Gruntfile.js']
@@ -90,14 +86,8 @@ module.exports = function(grunt) {
         ]
       }
     }
-  });
 
-  grunt.registerTask('non-js', [
-    'clean:dist',
-    'useminPrepare',
-    'copy:dist',
-    'usemin'
-  ]);
+  });
 
   grunt.registerTask('default', [
     'clean:dist',
